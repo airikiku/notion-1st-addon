@@ -1,0 +1,2914 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prismew</title>
+    <style>:root {
+  color-scheme: dark;
+  font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  --ink: #f4efff;
+  --muted: #b8b0c7;
+  --faint: #8f879e;
+  --canvas: #292631;
+  --surface: #332f3d;
+  --surface-raised: #3c3748;
+  --surface-active: #494258;
+  --border: #5b536b;
+  --border-soft: rgb(207 195 229 / 14%);
+  --accent: #7352ff;
+  --accent-strong: #8a70ff;
+  --danger: #ff8f9c;
+  color: var(--ink);
+  background: var(--canvas);
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  width: 380px;
+  min-width: 380px;
+  max-width: 380px;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--canvas);
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar { display: none; }
+
+body { min-height: 320px; }
+button,
+input,
+select { font: inherit; }
+button { color: inherit; }
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+[hidden] { display: none !important; }
+
+.panel {
+  width: 100%;
+  min-height: 320px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 92% 2%, rgb(115 82 255 / 10%), transparent 28%),
+    var(--canvas);
+}
+
+.app-shell { width: 100%; }
+.main-view { padding: 16px 18px 16px; position: relative; }
+.editor-view { padding: 20px 18px 14px; }
+
+.brand-header,
+.brand-lockup,
+.master-control,
+.section-heading,
+.editor-header,
+.editor-group-heading,
+.extra-row,
+.app-footer {
+  display: flex;
+  align-items: center;
+}
+
+.brand-header {
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 0;
+  margin-bottom: 24px;
+}
+.brand-lockup { min-width: 0; }
+h1,
+h2,
+h3,
+p { margin: 0; }
+.brand-logo { margin: 0; }
+.brand-logo-image {
+  height: 25px;
+  width: auto;
+  object-fit: contain;
+  margin-left: -2px;
+}
+.onboarding-kicker {
+  display: none;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.master-control { gap: 8px; color: var(--muted); font-size: 11px; font-weight: 700; }
+
+.toggle {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  margin: 0;
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #4b4655;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fbf8ff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 28%);
+  transition: transform 150ms ease;
+}
+.toggle:checked { border-color: var(--accent); background: var(--accent); }
+.toggle:checked::after { transform: translateX(18px); }
+
+.section-heading { justify-content: space-between; margin-bottom: 15px; }
+.section-heading h2,
+.more-settings > summary,
+.settings-section > summary {
+  font-size: 15px;
+  font-weight: 700;
+}
+.section-help { margin-top: 4px; color: var(--muted); font-size: 12px; }
+
+.header-customize-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #f1edff;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  color: #4322aa;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: all 160ms ease;
+  line-height: 1;
+}
+.header-customize-btn:hover {
+  background: #ffffff;
+  color: #351596;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+.header-customize-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.header-customize-btn span[aria-hidden="true"] {
+  font-size: 11px;
+  line-height: 1;
+  color: #4322aa;
+}
+.header-customize-btn:hover span[aria-hidden="true"] {
+  color: #351596;
+}
+
+.preset-columns {
+  display: grid;
+  grid-template-columns: 56px 56px 36px 60px 1fr;
+  gap: 6px;
+  padding: 0 43px 4px 6px;
+  margin-bottom: 3px;
+  color: var(--faint);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.preset-columns span {
+  text-align: center;
+  display: block;
+}
+.preset-columns span:nth-child(3) {
+  transform: translateX(-3.5px);
+}
+.presets-list {
+  max-height: 160px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 2px;
+  scrollbar-color: var(--border) transparent;
+  scrollbar-width: thin;
+}
+.presets-list::-webkit-scrollbar { width: 5px; }
+.presets-list::-webkit-scrollbar-track { background: transparent; }
+.presets-list::-webkit-scrollbar-thumb { border-radius: 999px; background: var(--border); }
+.preset-card {
+  position: relative;
+  border-radius: 9px;
+  margin-bottom: 5px;
+  border: 1px solid transparent;
+  background: rgb(255 255 255 / 2.5%);
+  transition: background 140ms ease, border-color 140ms ease;
+}
+.preset-card:last-child {
+  margin-bottom: 1px;
+}
+.preset-card:hover {
+  background: rgb(255 255 255 / 5.5%);
+  border-color: rgb(255 255 255 / 8%);
+}
+.preset-card.is-active {
+  background: #1e1c24;
+  border-color: rgba(138, 112, 255, 0.45);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.preset-card.is-active .preset-name {
+  color: #ffffff;
+  font-weight: 700;
+}
+.preset-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 6px 5px 5px;
+  border-radius: 9px;
+}
+.preset-apply {
+  display: grid;
+  grid-template-columns: 56px 56px 36px 60px 1fr;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.preset-preview {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 32px;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 8px;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+.preset-accent {
+  justify-self: center;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 50%;
+  background: var(--preset-accent-color);
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 5%);
+}
+.preset-name {
+  justify-self: start;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.preset-mode {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2.5px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: all 120ms ease;
+  border: 1px solid transparent;
+}
+.preset-mode[data-appearance="dark"] {
+  background: rgba(88, 28, 135, 0.4);
+  border-color: rgba(138, 112, 255, 0.28);
+  color: #ebdfff;
+}
+.preset-mode[data-appearance="light"] {
+  background: rgba(120, 53, 15, 0.4);
+  border-color: rgba(245, 158, 11, 0.28);
+  color: #fde68a;
+}
+.preset-more,
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+}
+.preset-more:hover,
+.icon-button:hover { color: var(--ink); background: rgb(255 255 255 / 10%); }
+.preset-menu {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px 8px;
+  margin: 0;
+  border-top: 1px solid rgb(255 255 255 / 8%);
+  background: rgb(0 0 0 / 22%);
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  animation: presetMenuExpand 140ms ease-out;
+}
+@keyframes presetMenuExpand {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.preset-menu button {
+  flex: 1;
+  min-height: 28px;
+  padding: 5px 0;
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 6px;
+  color: #cfc6e0;
+  background: rgb(255 255 255 / 6%);
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.preset-menu button:hover {
+  color: white;
+  background: rgb(255 255 255 / 12%);
+  border-color: rgb(255 255 255 / 16%);
+}
+.preset-menu .delete-action {
+  color: var(--danger);
+  border-color: rgb(255 80 100 / 22%);
+}
+.preset-menu .delete-action:hover {
+  color: #ffa8b3;
+  background: rgb(255 80 100 / 18%);
+  border-color: rgb(255 80 100 / 35%);
+}
+.preset-delete-confirm,
+.preset-rename {
+  margin: 4px 6px 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-raised);
+  border: 1px solid rgb(255 255 255 / 8%);
+}
+.preset-delete-confirm button,
+.preset-rename button {
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+.preset-delete-confirm button:hover,
+.preset-rename button:hover { color: var(--ink); background: var(--surface); }
+.preset-delete-confirm .confirm-delete { color: var(--danger); }
+.preset-delete-confirm,
+.preset-rename { display: flex; align-items: center; gap: 8px; }
+.preset-delete-confirm span { flex: 1; color: var(--muted); font-size: 12px; }
+.preset-rename input {
+  min-width: 0;
+  flex: 1;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--ink);
+  background: #28252f;
+}
+.custom-theme-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  margin-bottom: 6px;
+  padding: 0 10px;
+  border-radius: 9px;
+  color: var(--ink);
+  background: rgb(115 82 255 / 11%);
+  font-size: 12px;
+}
+.custom-theme-status small { margin-left: auto; color: var(--muted); }
+.custom-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-strong); }
+.presets-empty { padding: 16px 8px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+.primary-action,
+.onboarding-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  margin-top: 12px;
+  border: 1px solid rgba(138, 112, 255, 0.38);
+  border-radius: 11px;
+  color: #d8b4fe;
+  background: rgba(115, 82, 255, 0.14);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.primary-action:hover,
+.onboarding-cta:hover {
+  background: rgba(115, 82, 255, 0.24);
+  border-color: rgba(138, 112, 255, 0.65);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(115, 82, 255, 0.3);
+  transform: translateY(-0.5px);
+}
+.primary-action:active,
+.onboarding-cta:active { transform: translateY(1px); }
+.primary-action span[aria-hidden="true"],
+.onboarding-cta span[aria-hidden="true"] {
+  color: #bca3ff;
+  font-size: 13px;
+}
+
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+.more-settings { margin-top: 16px; margin-bottom: 8px; }
+.more-settings[open] > summary { display: none; }
+.collapsed-cat {
+  display: none;
+  position: absolute;
+  right: 78px;
+  bottom: -9px;
+  width: 72px;
+  height: 72px;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+}
+.collapsed-cat svg {
+  overflow: visible !important;
+  filter: none !important;
+}
+.more-settings:not([open]) + .collapsed-cat { display: block; }
+.svg-cat-tail {
+  transform-origin: 800px 900px;
+  transition: transform 260ms ease;
+}
+.collapsed-cat:hover .svg-cat-tail {
+  animation: cat-tail-gentle-sway 1.4s ease-in-out infinite alternate;
+}
+@keyframes cat-tail-gentle-sway {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(18deg); }
+}
+.svg-eyes-blink {
+  animation: cat-natural-blink 4.2s infinite;
+  transform-origin: 500px 360px;
+}
+@keyframes cat-natural-blink {
+  0%, 94%, 98%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.08); }
+}
+.more-settings > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+  color: var(--ink);
+}
+.settings-section > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 28px;
+  padding: 2px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.summary-toggle {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.summary-toggle::before,
+.summary-toggle::after {
+  content: "";
+  position: absolute;
+  background: var(--faint);
+  border-radius: 1px;
+  transition: transform 180ms ease, opacity 180ms ease, background 150ms ease;
+}
+.summary-toggle::before {
+  width: 11px;
+  height: 1.75px;
+}
+.summary-toggle::after {
+  width: 1.75px;
+  height: 11px;
+}
+summary:hover .summary-toggle::before,
+summary:hover .summary-toggle::after {
+  background: var(--ink);
+}
+details[open] > summary .summary-toggle::before {
+  background: var(--accent-strong);
+}
+details[open] > summary .summary-toggle::after {
+  transform: rotate(90deg);
+  opacity: 0;
+  background: var(--accent-strong);
+}
+.settings-section {
+  border-top: 0;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+.settings-section:last-of-type {
+  margin-bottom: 4px;
+}
+.settings-section-body { padding: 4px 0 6px; }
+.font-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px 4px;
+  gap: 8px;
+}
+.font-current-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 220px;
+}
+.font-current-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  flex-shrink: 0;
+}
+.font-current-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.font-reset-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  background: rgb(255 255 255 / 3%);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease;
+  flex-shrink: 0;
+}
+.font-reset-chip:hover {
+  background: rgb(255 255 255 / 8%);
+  color: var(--ink);
+  border-color: rgb(255 255 255 / 16%);
+}
+.font-reset-chip.is-default {
+  opacity: 0.55;
+  cursor: default;
+  border-color: transparent;
+}
+.font-reset-chip:not(.is-default) {
+  border-color: rgb(var(--accent-rgb, 124 92 255) / 30%);
+  background: rgb(var(--accent-rgb, 124 92 255) / 10%);
+  color: var(--ink);
+}
+.font-reset-chip:not(.is-default):hover {
+  background: rgb(var(--accent-rgb, 124 92 255) / 18%);
+  border-color: var(--accent);
+}
+.font-reset-chip .font-reset-icon {
+  font-size: 12px;
+  line-height: 1;
+  transition: transform 200ms ease;
+}
+.font-reset-chip:not(.is-default):hover .font-reset-icon {
+  transform: rotate(-45deg);
+}
+.font-tabs {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 22%);
+  border: 1px solid rgb(255 255 255 / 6%);
+  margin-bottom: 7px;
+}
+.font-tabs button {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.font-tabs button:hover:not([aria-selected="true"]) {
+  color: var(--ink);
+  background: rgb(255 255 255 / 4%);
+}
+.font-tabs button[aria-selected="true"] {
+  color: white;
+  background: var(--accent);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 30%);
+}
+.font-list {
+  display: grid;
+  gap: 6px;
+  max-height: 122px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2px;
+  scrollbar-color: var(--border) transparent;
+  scrollbar-width: thin;
+}
+.font-list::-webkit-scrollbar { width: 5px; }
+.font-list::-webkit-scrollbar-track { background: transparent; }
+.font-list::-webkit-scrollbar-thumb { border-radius: 999px; background: var(--border); }
+.font-row {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 26px;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: 9px;
+  background: rgb(255 255 255 / 2.5%);
+  border: 1px solid rgb(255 255 255 / 5%);
+  transition: all 140ms ease;
+}
+.font-row:hover:not(.is-active) {
+  background: rgb(255 255 255 / 5.5%);
+  border-color: rgb(255 255 255 / 9%);
+}
+.font-row.is-active {
+  background: #1e1c24;
+  border-color: rgba(138, 112, 255, 0.45);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.font-row.is-active .font-name {
+  color: #ffffff;
+  font-weight: 700;
+}
+.font-favorite {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--faint);
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease;
+}
+.font-favorite:hover {
+  color: #cbbcff;
+  background: rgb(255 255 255 / 6%);
+}
+.font-favorite.is-favorite {
+  color: #cbbcff;
+}
+.font-apply {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.font-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.font-name {
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.font-badge {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 8%);
+  color: var(--muted);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+.font-sample {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.font-row.is-active .font-sample {
+  color: #d1c5ea;
+}
+.font-active-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-strong);
+  font-size: 16px;
+  font-weight: 700;
+}
+.font-empty { padding: 12px; color: var(--muted); font-size: 12px; text-align: center; }
+.hidden-elements-list { display: grid; gap: 7px; padding-top: 13px; }
+.hidden-elements-list label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 9px;
+  color: var(--muted);
+  background: rgb(255 255 255 / 2.5%);
+  border: 1px solid transparent;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.hidden-elements-list label:hover {
+  color: var(--ink);
+  background: rgb(255 255 255 / 5%);
+  border-color: rgb(255 255 255 / 7%);
+}
+.check-control {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  margin: 0;
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #413c4c;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.check-control::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fbf8ff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+  transition: transform 150ms ease;
+}
+.check-control:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.check-control:checked::after {
+  content: "";
+  transform: translateX(16px);
+}
+
+.app-footer { justify-content: flex-end; align-items: center; min-height: 16px; margin-top: 2px; color: var(--faint); font-size: 10px; line-height: 1; }
+.footer-note { margin-right: auto; }
+.onboarding-only { display: none; }
+
+.editor-header { gap: 12px; margin-bottom: 20px; }
+.editor-header .icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  background: rgb(255 255 255 / 3%);
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.editor-header .icon-button:hover {
+  background: rgb(255 255 255 / 10%);
+  color: var(--ink);
+}
+.eyebrow { color: #987eff; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.editor-header h2 { margin-top: 2px; font-size: 17px; font-weight: 700; color: #fff; }
+.preset-name-field {
+  display: grid;
+  gap: 7px;
+  margin-top: 18px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 2.5%);
+  border: 1px solid rgb(255 255 255 / 6%);
+  color: #d1c8e2;
+  font-size: 11px;
+  font-weight: 700;
+}
+.preset-name-field span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.preset-name-field small { font-size: 10px; color: var(--faint); font-weight: 500; }
+.preset-name-field input {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  color: var(--ink);
+  background: rgb(0 0 0 / 24%);
+  font-size: 12.5px;
+  outline: none;
+  transition: all 140ms ease;
+}
+.preset-name-field input:focus {
+  border-color: var(--accent-strong);
+  background: rgb(0 0 0 / 35%);
+  box-shadow: 0 0 0 3px rgb(115 82 255 / 20%);
+}
+.preset-name-field input::placeholder { color: var(--faint); }
+.editor-group { padding: 0; margin-bottom: 16px; border-top: 0; }
+.editor-group h3 { font-size: 13px; font-weight: 700; color: #f0eaff; }
+.editor-group > h3 { margin-bottom: 10px; }
+.editor-group-heading { justify-content: space-between; margin-bottom: 10px; }
+.editor-group-heading p,
+.extra-row p { margin-top: 2px; color: var(--faint); font-size: 10px; }
+.color-pair {
+  display: grid;
+  grid-template-columns: 1fr 36px 1fr;
+  align-items: end;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 2.5%);
+  border: 1px solid rgb(255 255 255 / 6%);
+}
+.color-swatch-control { display: grid; gap: 6px; }
+.color-swatch-control > span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.color-value-button,
+.accent-value-button {
+  min-width: 0;
+  height: 38px;
+  padding: 0 8px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 9px;
+  background: var(--color-picker-value, #fff);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 25%);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.color-value-button:hover,
+.accent-value-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 35%);
+}
+.color-value-button output,
+.accent-value-button output {
+  display: block;
+  color: var(--color-value-text, #17151c);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .02em;
+}
+.swap-colors {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.swap-colors img { display: block; width: 24px; height: 24px; object-fit: contain; }
+.swap-colors:hover { background: rgb(255 255 255 / 8%); }
+
+.extra-group { display: grid; gap: 8px; margin-bottom: 0; }
+.extra-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 2.5%);
+  border: 1px solid rgb(255 255 255 / 6%);
+}
+.extra-row > div:first-child { min-width: 0; flex: 1; }
+.extra-row strong { font-size: 12px; color: #f0eaff; font-weight: 600; }
+.accent-value-button { width: 76px; flex-shrink: 0; }
+.accent-value-button[data-accent-enabled="false"] { opacity: .45; }
+.mode-control {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  background: rgb(0 0 0 / 25%);
+  border: 1px solid rgb(255 255 255 / 8%);
+}
+.mode-control label { cursor: pointer; }
+.mode-control input { position: absolute; opacity: 0; pointer-events: none; }
+.mode-control span {
+  display: block;
+  padding: 5px 9px;
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  transition: all 120ms ease;
+}
+.mode-control input:checked + span {
+  color: white;
+  background: var(--accent);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 30%);
+}
+.save-preset { margin-top: 4px; }
+.editor-note {
+  margin-top: 10px;
+  color: var(--faint);
+  font-size: 10px;
+  line-height: 1.45;
+  text-align: center;
+  padding: 0 4px;
+}
+
+.status {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  z-index: 900;
+  max-width: calc(100vw - 24px);
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: var(--ink);
+  background: #19171e;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 28%);
+  font-size: 11px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 5px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.status.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+.color-picker {
+  position: fixed;
+  z-index: 1000;
+  width: 292px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--ink);
+  background: #24212b;
+  box-shadow: 0 16px 40px rgb(0 0 0 / 38%);
+}
+.color-picker-field {
+  position: relative;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent), hsl(var(--picker-hue, 0) 100% 50%);
+  cursor: crosshair;
+  touch-action: none;
+}
+.color-picker-field-thumb {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #191919;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.color-picker-slider-row { display: grid; grid-template-columns: 32px 30px 1fr; align-items: center; gap: 10px; margin-top: 10px; }
+.color-picker-preview { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 50%; background: var(--picker-color, #000); }
+.color-picker-eyedropper { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--border); border-radius: 50%; color: var(--ink); background: var(--surface); cursor: pointer; }
+.color-picker-hue { width: 100%; height: 12px; margin: 0; appearance: none; border-radius: 999px; background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }
+.color-picker-hue::-webkit-slider-thumb { width: 18px; height: 18px; appearance: none; border: 2px solid white; border-radius: 50%; background: hsl(var(--picker-hue, 0) 100% 50%); box-shadow: 0 0 0 1px #514a5e; cursor: pointer; }
+.color-picker-values { display: grid; grid-template-columns: minmax(0, 1fr) 70px; gap: 8px; margin-top: 10px; }
+.color-picker-values input,
+.color-picker-values select { width: 100%; height: 36px; border: 1px solid var(--border); border-radius: 8px; color: var(--ink); background: var(--surface); text-align: center; }
+.color-picker-rgb-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.color-picker-rgb-fields label { display: grid; gap: 2px; color: var(--faint); text-align: center; font-size: 8px; }
+
+body.is-onboarding {
+  width: 100%;
+  min-width: 760px;
+  max-width: none;
+  min-height: 100vh;
+  padding: 48px 24px;
+  background:
+    radial-gradient(circle at 78% 16%, rgb(115 82 255 / 13%), transparent 30%),
+    radial-gradient(circle at 12% 82%, rgb(185 160 255 / 6%), transparent 34%),
+    #292631;
+}
+html:has(body.is-onboarding) {
+  width: 100%;
+  min-width: 760px;
+  max-width: none;
+}
+body.is-onboarding .panel { width: min(880px, 100%); min-height: 0; margin: 0 auto; border: 1px solid var(--border); border-radius: 28px; background: rgb(41 38 49 / 88%); }
+body.is-onboarding .app-shell { display: grid; grid-template-columns: minmax(0, 1fr); }
+body.is-onboarding .main-view { padding: 30px 34px 20px; }
+body.is-onboarding .brand-logo-image { height: 32px; }
+body.is-onboarding .onboarding-only { display: block; }
+body.is-onboarding .onboarding-kicker { display: block; }
+body.is-onboarding .onboarding-cta { display: flex; align-items: center; justify-content: center; gap: 8px; }
+body.is-onboarding .preset-columns { grid-template-columns: 64px 64px 52px 68px minmax(110px, 1fr) 26px; }
+body.is-onboarding .preset-apply { grid-template-columns: 64px 64px 52px 68px minmax(110px, 1fr); }
+body.is-onboarding .preset-preview { width: 62px; }
+body.is-onboarding .more-settings { margin-top: 0; }
+body.is-onboarding .app-footer { margin-top: 14px; }
+body.is-onboarding.has-editor .app-shell { grid-template-columns: minmax(0, 1.05fr) minmax(340px, .95fr); }
+body.is-onboarding.has-editor .editor-view { display: block !important; padding: 30px 28px 24px; border-left: 1px solid var(--border); background: rgb(51 47 61 / 46%); }
+body.is-onboarding.has-editor .main-view { max-height: calc(100vh - 98px); overflow-y: auto; }
+
+@media (max-width: 800px) {
+  html:has(body.is-onboarding) { min-width: 360px; }
+  body.is-onboarding { min-width: 360px; padding: 18px; }
+  body.is-onboarding.has-editor .app-shell { grid-template-columns: 1fr; }
+  body.is-onboarding.has-editor .editor-view { border-top: 1px solid var(--border); border-left: 0; }
+}
+
+@media (max-width: 520px) {
+  body.is-onboarding .main-view { padding: 24px 20px 18px; }
+  body.is-onboarding .preset-columns { grid-template-columns: 48px 48px 42px 54px minmax(54px, 1fr) 22px; gap: 5px; }
+  body.is-onboarding .preset-apply { grid-template-columns: 48px 48px 42px 54px minmax(54px, 1fr); gap: 5px; }
+  body.is-onboarding .preset-preview { width: 50px; }
+}
+</style>
+  <style>
+  body { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh;
+    background: transparent;
+  }
+  .panel {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+</style></head>
+  <body>
+    <main class="panel">
+      <div class="app-shell">
+        <section id="mainView" class="main-view" aria-label="Prismew settings">
+          <header class="brand-header">
+            <div class="brand-lockup">
+              <div>
+                <h1 class="brand-logo">
+                  <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20width%3D%221126%22%20zoomAndPan%3D%22magnify%22%20viewBox%3D%220%200%20844.5%20130.499996%22%20height%3D%22174%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%20version%3D%221.0%22%3E%3Cdefs%3E%3Cfilter%20x%3D%220%25%22%20y%3D%220%25%22%20width%3D%22100%25%22%20height%3D%22100%25%22%20id%3D%22f2a3462c49%22%3E%3CfeColorMatrix%20values%3D%220%200%200%200%201%200%200%200%200%201%200%200%200%200%201%200%200%200%201%200%22%20color-interpolation-filters%3D%22sRGB%22%2F%3E%3C%2Ffilter%3E%3Cfilter%20x%3D%220%25%22%20y%3D%220%25%22%20width%3D%22100%25%22%20height%3D%22100%25%22%20id%3D%22985d8bfe76%22%3E%3CfeColorMatrix%20values%3D%220%200%200%200%201%200%200%200%200%201%200%200%200%200%201%200.2126%200.7152%200.0722%200%200%22%20color-interpolation-filters%3D%22sRGB%22%2F%3E%3C%2Ffilter%3E%3Cg%2F%3E%3CclipPath%20id%3D%225556b76389%22%3E%3Crect%20x%3D%220%22%20width%3D%2251%22%20y%3D%220%22%20height%3D%2285%22%2F%3E%3C%2FclipPath%3E%3CclipPath%20id%3D%2267002d53ed%22%3E%3Cpath%20d%3D%22M%201.363281%200%20L%20127%200%20L%20127%20130%20L%201.363281%20130%20Z%20M%201.363281%200%20%22%20clip-rule%3D%22nonzero%22%2F%3E%3C%2FclipPath%3E%3CclipPath%20id%3D%22e8b2a1902e%22%3E%3Cpath%20d%3D%22M%20-6.660156%2010.585938%20L%20113.585938%20-3.238281%20L%20127.40625%20117.007812%20L%207.164062%20130.828125%20Z%20M%20-6.660156%2010.585938%20%22%20clip-rule%3D%22nonzero%22%2F%3E%3C%2FclipPath%3E%3Cmask%20id%3D%220397bdeb72%22%3E%3Cg%20filter%3D%22url(%23f2a3462c49)%22%3E%3Cg%20filter%3D%22url(%23985d8bfe76)%22%20transform%3D%22matrix(0.240489%2C%20-0.0276425%2C%200.0276425%2C%200.240489%2C%20-6.658403%2C%2010.584799)%22%3E%3Cimage%20x%3D%220%22%20y%3D%220%22%20width%3D%22500%22%20xlink%3Ahref%3D%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAAAAADuvYBWAAAAAmJLR0QA%2F4ePzL8AAAlwSURBVHic7d2%2FdhvHGUDxod2kROly8wRed%2B4CdulMde5Edu4kPYGkJ5D8BLQrn1SiKh9XhJ9AyBMI7pTKSKcuKRwXzjGBmd3ZnT%2F33nZB6NP5nVksgVniImRqGP82jptcz9ZcN9%2BVniChiyzPMj7ejlmeqN1aUs%2BAPlw%2FHuY%2FS%2FM1pD4bffvkKsccHdSO%2Bkz07fNtljG6qBn1WejD7TbTGH3UivqnM372xZsh1xh9dHWxKz1CVNPRxx%2B%2FzjhHH22Ht6VHiGky%2BosfPss5RyeNTahPRN%2F88E3eOXqpCfVp6OObbd4x%2BqkF9Uno4%2F2QeYyOakB9Cvp4z32PPaL61Sega36mcfzpY%2BkZTpb%2B5ozm59tfHkuPcKpk9OGd5uerW%2F2TxMdv3mgeUd2nw1T0W%2Frn5pFVrZ6I%2FtTPUSOrWT3tNb3m%2F0l11fu6nob%2BzpN7QvtHh9Ij%2FHlJp%2Fenmqc01rpGUlb65r0n97SOl%2FvSI%2FxZKSv9leaJbe6rXOsJK314v9wY3VblWk9Y6c%2BXm6Lfqlzr8SvdhT6tCtd6%2FEp3oU9rc78tPcL%2FF73SvXSfXm1bo6NX%2BpXmk7u9Lj3BH4tGf7zkFL1XmXrs6d3LuHlVdYaPXenbJYcAVNVaj0X%2FatEpANWkHnt6%2F9XruLnVc4aPXOngPyySrdvb0hP8XiT6dtEhIF3Xoh6J%2FvmyU0CqRT0SfVh0CEyVqEdeyHkdl6nvbkpPEKLR%2F7PsFKBqUI87vVf4mXCr1XCGj0P35J6v6%2FL3haXe4WKzK3%2FzgOjrV1xd9AKVVhe9RIXVRS9SWXXRy1RUXfRClbzRTfRSDeVugxC9WOVufhG9XMXURS9YKXXRS1ZIXfSilVEXvWyb%2B%2Bv1%2F1HRC7cpsCFe9OKtry56%2BVZXF72C1lYXvYZWVhe9itZVF72Obl%2Bs%2BI%2BJXknPV9waLXotrbghXvRqWk9d9HpaTV30ilpLXfSaWkld9Kq6XuXLsESvq6s1tkaLXllrbIgXvbZWUBe9upZXF72%2BFlcXvcKWVhe9xsb7YcmnF73Klr29UfQ6W3RDvOiVtqS66LW2oLro1bacuuj1tpi66BW31Pf4iV5zC93eKHrdLbIhXvTKW0Jd9NpbQF306suvLnr9ZVcXvYFyq4veQpm%2Fx0%2F0Jsq7IV70NsqqLnoj5VQXvZUyqoveTPnURW%2BnbOqiN1Su7%2FETvaUybYgXvanyqIveVlnURW%2BsHOqit1YGddGba7666O01vp%2B5NVr0Bpu7IV70FpupLnqTzVMXvc1mqYveaHPURW%2B1GeqiN9v0G91Eb7fJ3%2BMnestNVBe96aapi952k9RFb7wp6qK33gR10Zvv9lXqT4jefk9Tt0aL3kGpG%2BJF76FEddG7KE1d9D5KUhe9k1LURe%2BlhO%2FxE72b4r%2FHT%2FR%2Bit4QL3pHxaqL3lOR6qJ3VZy66H0VpS56Z40Rm2RF760IddG76%2FyGeNH766y66B12Tl30HjujLnqXnVYXvc9Ofo%2Bf6J22ef7wMdGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBiQ5MdGCiAxMdmOjARAcmOjDRgYkOTHRgogMTHZjowEQHJjow0YGJDkx0YKIDEx2Y6MBEByY6MNGBid5rh4cPid5rvzx8KA79kGcOqyPRe23%2F8KHI0%2Fshyxy2YseHD4nea7uHD0Wi%2F5xlDluvw4ljkegnXiCsyk6Jid5pp87Nsa%2FphxyD2HrtThyLfXPmLsMctl7HDKd3r%2BQa6%2BQijV7pJ37ts%2Fp6e%2Bpg9Hvvnt9b6phlpYdv509iq3V6iV5EP8%2F7YeYgtl5%2FPZw6Gv%2FR6su5g9hq7Q4nD8ev9PDrZt4ktlqXu5OHEzZR%2BKreSrvd6eMJK33zbpgzia3WmYWestKPvqq30bmFnrLSQ7jfTh7E1uv0pXtI3Bj5bPogtlovD%2Bce8WnK03242E6dxNbqcPPx3EOSTu8hvBunzmIr9cX5vQ%2BJ%2B95v%2FNyl8p5F7HdJOr2H8OFfV9NmsXW6i7nuSkQP%2B82XU2axddo%2FOvuCHtLRw0%2BDL%2BvVdrz8EPOwxAu5EPxtvd6Ol3EbWCegb%2B5d61UWaz7lrtXjpbtoaizaPP01PYTw8R%2B%2BrtfX%2FlH0zQlT0EN461tztbW%2FPEQ%2Fdhp62P3z73%2BZ9pO2SK%2Bjflf7XxMu5H5ruN1O%2FVHL3fEm6TJr4koP4fj9v790sdfRXfQl3G9NXunBxV5Jh2epv03NQQ9h%2B8rL%2BMIdv32d%2FCHYPPQQrp%2FIXrAp5PPRQ9g%2B8YO3Qh1eTrvFcD56CMPVY5f76h3uvp%2F6pyJyoIcQhu1XW%2B%2BFWK%2Fdz3cz%2FjhIJvQQQhjG8fPNKP2y7Y%2F7X%2Fa7ec%2FxX5E%2BNI7ktCUwAAAAAElFTkSuQmCC%22%20height%3D%22500%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fmask%3E%3CclipPath%20id%3D%22603b38c7ba%22%3E%3Crect%20x%3D%220%22%20width%3D%2231%22%20y%3D%220%22%20height%3D%2295%22%2F%3E%3C%2FclipPath%3E%3CclipPath%20id%3D%229014864a08%22%3E%3Crect%20x%3D%220%22%20width%3D%2257%22%20y%3D%220%22%20height%3D%2288%22%2F%3E%3C%2FclipPath%3E%3CclipPath%20id%3D%22812e00e5f8%22%3E%3Crect%20x%3D%220%22%20width%3D%2296%22%20y%3D%220%22%20height%3D%22100%22%2F%3E%3C%2FclipPath%3E%3CclipPath%20id%3D%22587b630d45%22%3E%3Crect%20x%3D%220%22%20width%3D%2276%22%20y%3D%220%22%20height%3D%2294%22%2F%3E%3C%2FclipPath%3E%3CclipPath%20id%3D%2293134fa52d%22%3E%3Crect%20x%3D%220%22%20width%3D%22103%22%20y%3D%220%22%20height%3D%2295%22%2F%3E%3C%2FclipPath%3E%3CclipPath%20id%3D%224920215742%22%3E%3Cpath%20d%3D%22M%20476%2036%20L%20842.640625%2036%20L%20842.640625%20130%20L%20476%20130%20Z%20M%20476%2036%20%22%20clip-rule%3D%22nonzero%22%2F%3E%3C%2FclipPath%3E%3CclipPath%20id%3D%22f8526278cb%22%3E%3Crect%20x%3D%220%22%20width%3D%22367%22%20y%3D%220%22%20height%3D%2294%22%2F%3E%3C%2FclipPath%3E%3C%2Fdefs%3E%3Cg%20transform%3D%22matrix(1%2C%200%2C%200%2C%201%2C%20107%2C%2045)%22%3E%3Cg%20clip-path%3D%22url(%235556b76389)%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(3.745466%2C%2074.858263)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2037.5625%20-36.03125%20L%2034.40625%20-36.265625%20C%2030.488281%20-36.566406%2027.460938%20-35.613281%2025.328125%20-33.40625%20C%2023.203125%20-31.195312%2022.003906%20-28.28125%2021.734375%20-24.65625%20L%2019.75%201.5%20L%205%200.375%20L%209%20-52.375%20L%2022.140625%20-51.375%20L%2021.375%20-41.390625%20L%2021.59375%20-41.375%20C%2023.15625%20-44.832031%2025.160156%20-47.359375%2027.609375%20-48.953125%20C%2030.066406%20-50.546875%2032.851562%20-51.222656%2035.96875%20-50.984375%20L%2038.6875%20-50.78125%20Z%20M%2037.5625%20-36.03125%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20clip-path%3D%22url(%2367002d53ed)%22%3E%3Cg%20clip-path%3D%22url(%23e8b2a1902e)%22%3E%3Cg%20mask%3D%22url(%230397bdeb72)%22%3E%3Cg%20transform%3D%22matrix(0.240489%2C%20-0.0276425%2C%200.0276425%2C%200.240489%2C%20-6.658403%2C%2010.584799)%22%3E%3Cimage%20x%3D%220%22%20y%3D%220%22%20width%3D%22500%22%20xlink%3Ahref%3D%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAIAAABEtEjdAAAABmJLR0QA%2FwD%2FAP%2BgvaeTAAAgAElEQVR4nO3dbXBb13kn8OeCEExdwuGLwBCSTRAWKQFUElOkrTQNKMVORMnVpFIYbzvKqJ3ZkUejndSznk46znpWnb5l4sadzK5n7M402qibdjz1TjcrS902lajUSUy4Tb0mRTsRSYmSSSCxSfsSEh0QJkEQZz9cmWHES5AE7r3n3HP%2Bvw%2BJDUjkQ5r848Fzzj1XI4nsiPYQY0SkkebTqoq0wIoaaaTxLgzATUzTiDHStGvjfbxrAW5kyL149BFGRcYYI0aaRkWmyfBlAZQP%2BQ7eTsF4dL%2FZqWtaVZEKxJjXvyIAuyDfFefVKIxH9xcZEZFPI%2FMfAOAOyHeVeS%2Fc49FHiqxIxHwaW2Qe%2FAIAXIR8V5bHsnFndD8xzadVLbJCeaVXVwfvqq6xuSyAjZjN3iwU8q59OjPfNY2ujl9y7ZMCd54J91%2FuhNGI1j2H8fsDtXVNNcH62tomxDpIrHXbzHs%2Ff%2FmffpS1flojYowYXU193926gBs%2F7wLWZWd0P2OMNE1jbD3JXhOsb2pqNWPd%2BeoAhHDqZIiIrPOd3W6JdkY%2Bh3xXhOjhHo0%2BVMV8RcZ85uiwJL8%2FsO3eeFNTKzp0UFOpfP%2FwNwj5rogq3gWUsiPaozFtUSv616qzujq4vfXB2K7u2romvz%2FgTnkA4mi4e%2F7Bne8S0b4H9XeMwrUJq5n%2BhxeAbKndPj3zlpvlgfvEDXdzyK5pPj%2FzlfhjZqzviP86JjCgsqVwJ6J9D%2Bqk0eDwnMWfQ74rQ9Bwv718ag7ZVxeJ3t%2F%2Bsc8g1gGWhzsRdbVXb230%2F%2Bj1nMUfRb6rQcRwX0%2By19Y13d9xYEuo2c3CAIS1bcvs7lZj%2BSM7WgKl872osfq6%2B2rrW27dGnelRnCVcOG%2BnmSPRO%2FfGfs0ZusAS3a3Gq3bZu54sHS%2Ba6QVtEUf02rro8h3%2BYgV7vHoI6WT3e8PfOwTn20Kt7pcGIDgWrfNrAx3Kp3vRFXkK2hF5LuUBAr3aPQhYlSl%2BYkVLf9ATbD%2B%2Fo4DmLADrLRauBPyXVWlNqK4rIr5ClqhyAqWz9YE6z%2FR0YMN7ABlOLQvaG6BtxRg%2FqLGfEyLRh9ysShwliideyy6nxGttp%2FdTHYM2QFWU6JzN5n9%2B8DwXH7BYuaJ%2Fl0%2BQnTuO6I9jFHVKrfYQLID2OLQvuDzp8JB3fq3Hv27ZIQId2KMrbKGimQHsNGOlsCa%2Be5n%2Fnj0EZcLA9vxD%2FdYdL9GZBntfn8AWx4B7LVmvvs1f5Et7oj2uFwY2ItzuEejDy2y4mq3PN0Rw6ECAPYrne9FVmAaEWPId0%2FjHO5VTCtoRcuBzLZ747gAFcAhpfNdY8w8RRL57l08wz0efcRHvkDRYodMTbB%2Be%2BuD7pcEoA7ku9x4hjtji1XaJrIayuyMfdr9egBUY%2Bb71kbr%2Bzog3z2NW7iby%2FHF4sLKp7bdG8eoHcAdO1oC3%2Fn6th0t1tsWkO%2FexS3cGVvUtKqVbbvfH4i03M%2BlJAA1BXXf86fCpfNdYywe3e9yYVAJPuEejT5UpOJqbTv2PgK4bM1892lUZIT%2B3UP4hLuPfAvaomXbvu2eOJeSABRXOt%2BLjBjmM57CJ9w1pm2iTSsfR9sOwNF65jPId6%2FgEO7x6CNV5COrze1o2wH4Qr5Lg0O4F6no06pW7n9sCreibQfgDvkuBx5jGcYWaXHlww1b7nW%2FFgBYKaj7vvP1bYf2BS2fRb57AodwZ8RWHhNWXR3EYQMAQjl1MoR89y63w321H4XauiaXKwGQSf3d80582PXk%2B87I55z41FAht8NdI2Z53gBmMgCVaLh7zqGPXDrfzXfhyHcBuT6WYeQji30y6NwBhFUi35d6NeS7aNyfuTNWvDPca4L12CcDIDLku%2Be4He7MvM7tVwWDDS6XAQAbhXz3Ftc7d81i4l5TgzMgATzg1MnQqZMh6%2BeQ74JxNdxX2yqDA34BvOLQviDy3RNcDffVtspg4A7gIWvme1FjrS2fjUYfcrMquIPL4U5VVltl0LkDeEvpfPeRb1Er%2BpiGfOfI7XAHADmUyneiAPMXNYZ854jnPVQBwNOQ7yJDuANA%2BZDvwkK4A0BFDu0LPn8qHNStwwT5zgvCHQAq1dlejXwXDcIdAGywoyWwZr5XMR%2BOCHYNwh0A7LFWvlf5tCocAe8ahDsA2KZkvmu4xYebEO4AYKfS%2FTvy3TUIdwCwGfJdBAh3ALDfjpbAd76%2BbUeL9bFRyHcXINwBwBFbG%2F3Pnwoj33lBuAOAU4K6D%2FnOC8IdQAbbt87wLsEa8p0XhDsAOAv5zgXCHQAch3x3H8IdANyAfHcZwh0AXGLm%2B74Hdctnke%2F2QrgDgHuCuu%2FPf%2F%2Bjh%2FYFLZ9FvtsI4Q4Abjt1MrRmvu%2BM7ne5Kskg3AGAg9L5rmlEjO2MfM7lqmSCcAcAPkrkOzEiRkSEfC8bwh0AuCmV75pm%2Fj%2FyvTwIdwDgCfnuEIQ7AHB26mTosUfrrJ9DvpcL4Q4A%2FD32xbpTJ0PWzyHfy4JwBwAhHNoXLJ3vRY21tnw2Gn3Izaq8C%2BEOAKIone8%2B8i1qRR%2FTkO%2Fr4eddAIANmiMNuh4gIl0PRFoaNvrXR4YnzX%2FI5fLpVMbm4mAjzMXVr%2F2VYflsgPnzWsHM9%2FHxH7hamdcg3MEzzASPt4eJKBZvIqItoWAotMpGi404%2FIWOOx4xjOy0kc3l8unUTSIaGZ5E7rsG%2BW4LhDsIStcDzZGGeHu4OVIfCgWbIxvuxysR%2BvBlo7MrQsvS3wz90ZEp472sYWRHRybdrEodyPfKIdxBIM2RhkikIdbeFIuHbWnJbWeGfiweXnokncqkUpn0xM1UKoOst5GZ7%2F%2F9bzPZXHHls8j3NSHcgTMzK2PtTZ1dEXNu7i3NkYbmSAN13%2F7X0ZHJ0ZGp1ERmdGQyl8tzLc3zDu0L7mgJ%2FN7XJpHvZUC4Ax%2FNkYbE3tZ4POzyvMVpsXh4qa9PpzKDA%2BmR4Ul09GXb0RJ4%2FlS4dL77mT8efWRk%2FJ%2FdL09kmpufLB7dT0RFdufj3Z%2F5HTfLAI46uyKdDzQLO3VxSC6XHx2ZHHw9PTiQcqKdr797%2FqkvvWb7hxXHtYn8avlORD7NX2SLTKNr430uFyYyhDu4IRYPJ%2Fa2enTwYq%2BllDeMrF0fs3XbzMnPv2nXRxNT6XxnmkaMkaYh35cg3MFBoVBw%2F8H2zq6IUn36OqVTmb4Lw7b08iqEOyHfNwjhDvbT9UBnV6TnYLtk83SHDA6kkq9cHxxIlf0RFAl3Qr5vRJWbnyxUt51uH8H%2FKyLR%2B90sA5wTCgWPHtvzu%2F%2Fx1z%2F5qftqazfzLscbtm6t%2FeSn7us5uKu2bvPkO%2B%2BX0cg33D3%2F4M53nahNNFvqqj7VsfnHb3xgme8akXmLvi31rZlbN1yvTizo3MEeie62xN7W5RvAoTyjI5PmuGb9f0Wdzt2UzRV%2F72uT1yasXwXRv5vQuUNFdD3w0MOxk1%2Fel9jbhsG6LUKh4Cc%2FdV9ib5tG2uQ7MwsLi2v%2BFXU6d1Ngk9bz6zX%2F9sYHmRmLb47Zv2uMNdZvNxTu3xHuUCZdDxz6%2FCdOfnlf5wPYA2M%2FXQ98%2FP57HvpsLBDwp1OZ0hGvWrjTOvLdp1GRUYPC8xmEO2yYOVg%2F%2BeXPxOLhTZtc%2FRFSzaZNVbF4%2BNDnPxFqDKZTN1cbxysY7rRWvrMP5zPKzt8R7rABZqwfP9EdwTYYd0UiDT0Hd60W8WqGO61vPqNsviPcYV10PfDob3ed%2FPJnEOscRSINib1tKwc1yoY7Id9Xh3CHNSzN1uPYCSMAc1BjzuKXjqxROdzpw3z%2F6dj8O0Zh5bPK5jvCHUrpObDr8Sce%2Fvgn7sFsXShmxCf2tk0bs5PvzCge7kQU2KQd2hd8xyhY7o9UM98R7mAtFg8%2F%2BdTBT37qPsS6sHQ98MlP3RdvD7%2F784ld9%2F6Mdzn87XtQR74vQbjDnUKh4PETif%2Fw2w9gg6MnhELBjo%2Fp8%2B%2B%2ByrsQIawn30O1903PvOV6aW7Dee7wK4707l55Q1EADzl1MkRE%2F%2FQji0M3NcaIMSLaGfnc1dT33a7MXQh3uC0WDx8%2FkcBVpiCBEvluNu%2BkQL4j3IF0PXD02J5EdxvvQgBsg3xHuKuusyty%2FEQC43WQj%2BL5jgVVdel64OSX9x3p3Y39MF5XnJ%2FGgqqlfQ%2FqWxv9P3o9Z%2FGcdvtM3C2126VcX0Xnrig07KCIQ%2FuCRPS1vzIsnpO6f0e4K0fXA4d7O3oO7OJdCIBL1sz3osZaWz67qBXHx3%2Fgcm3OQbirpTnS8NiJBO5%2BJ5nC%2B1d5lyC60vnuIy2vFXxMi0YfkibfEe4K6Tmw63BvB0YxoKZS%2BU4UYH7J8t3HuwBwg64Hjp9IHD22B8kOKju0L2huobEUYP6ixsx8d7EopyDc5dccaXjyqYPYxg5AKuU7wl1ynV2RJ586iCE7wJJD%2B4Lf%2Bfq2oG6dftLkO8JdZkd6dz%2F%2BxMMYxQDcYUdL4PlTYbnzHeEuJ3PIjiPAAFaznnyvYlU7oj0uF2YXhLuEdD2AITvAmtbMd5%2FmI8Y8mu8Id9k0Rxq%2B8c1HMWQHWI%2FS%2Ba4xZl7l5MV8R7hLxbx9EobsAOsna74j3OWR6G5DsgOUQcp8R7hLItHddvxEgncVAF61oyXwna9v29Fi3Rt5Md8R7jI40rsbyQ5Qoa2N%2FudPhaXJd4S752HLI4BdgrpPmnxHuHvb8RMJbHkEsJE0%2BY5w9zAkO4AT5Mh3hLtXIdkBnCNBviPcPQnJDuA0r%2Bc7wt17jh7bg2QHcIGZ7%2BZdPlYSPN8R7h6T6G7D7U8BXBPUfadOhryY7wh3L8GVSgBcrCvfI%2Ftdrqo0hLtndHZFkOxgaXHO%2Br6gYKM18p0REdsZ%2BZy7RZWCcPeG5kgDkh1WU5yf5l2CEkrlu0YaERGJk%2B8Idw8IhYI4EQxABCXynTQz3kXJd4S76HQ9gFvlAYjDK%2FmOcBfd8RMJ3HkDQCinToYee7TO%2Bjlh8h3hLrSjx%2FZ0dkV4VwGim%2F0Av8hue%2ByLdadOhqyfEyPf8TMhLmxph3WqC%2B%2FgXYKKDu0Lls73osZaWz4bjT7kZlVLEO6Cao40HD22h3cV4A3jb2%2FiXYKiSue7j3yLWtHHNC75jnAXERZRYUPmq1p4l6CuUvlOFGD%2Bosa45DvCXUTHTyRCoVWW4wFW2Hrv1h%2B%2BXsO7CnWJme8Id%2BH0HNiFRVTYkKZw3Ss%2Fxc8MTwLmO8JdLBi1Q3l2fvxj30vezbsKpR3aF%2Fzz3%2F9oULcOVffzHeEuEF0PPIYzBqAsB36j439f%2BsjEO1hZ5Wnfg%2Frzp8KC5DvCXSCHeztwvRKUp7UtHL53259%2B66PId752tATWzPcqVuXCEcEId1F0dkWwqx0q8cXf%2BrXZOd%2BffuujV27cxbsWpa2Z7z7N58IR8FWOfvQ7hOq2ExFb8Xgker%2BbZQhI1wNPPnVw0yZX%2F3OAZFp3hN%2B4PJH%2B2cwPB2pyc74dkfwm%2F8rfNnDDlrqqT3VsvvSvs%2FkFi%2F8EGpF5BPyW%2BtbMrRsO1aA59HEtxaP7iai44ovt%2FszvuFmGgB5%2F4mHskLGRYWSnjezSv46OTC1%2FdrO%2BKbJs%2FBWLh92rzGHXxyb%2F0%2FFvLf3rZx6Y3bPrg13b5%2FXqIseqlHVtIv97X5vM5qy%2F%2BUzTiDHStGvjfU58doQ7f51dkcefeJh3FV5lGNl0KpNO3UxNZHK5%2FOjIZHkfJxQKbgkFQ6FgqDHYHKkPhYIeXf%2F427%2F%2B4d%2F89Q%2FveLCxvtBYv2j%2Bc011sWXbwtJTu%2B6bW%2FbHFhvrCy4UqQ6O%2BY5w50zXA9%2F45qO4GHVDcrn84EBqdHhqdGTSWNah26450hCJNMTam2LxsIcuK%2Fuj%2F%2Fq%2FXn1ltMIPcsdrQHRrXt98%2B1e3sa6w%2FDVg1%2Fb5Cj%2BX3K5N5P%2FLf3v3nfesXzWdy3eEO2dHj%2B3BOuo6GUZ2cCCVfOV6OpVx%2F7OHQsFYPBxrb%2Brsigj%2BYpzNzv3Bf%2F6b62NlvompRHTrgr75dpeKtwhLsrni731t8tpE3vJZh%2FId4c5TLB5%2B8qmDvKsQXS6XT%2FaP8cp0S51dkVh7U6K7TdiU55jvG6XIW4Q1811jzKfRyPgluz4jwp2nb3zzUQ%2B92Xef2acPDqR4F7Kqzq5I5wPNie423oVYyGbn%2FuLpc5XPZ8TkxbcIpfPdp1GR0dUJhLv3HendffgLHbyrEJHZql%2B6MOzoPN1Guh7oObjr092tAr5UW66vqqnEW4Sa6mLL1l9mrnNvEUrkOyPSCOHufaFQ8I%2F%2B7DeFfVPPi2FkL10YTvaP5XLW3Y3gEt1th3s7RIv4ocsTf%2FH1c1OTt3gX4kklNhpFt%2BaX9piu%2Fy3Cavlu5uI1hLvXHT%2BREPO9PC%2BGkT1%2FdijZP8a7EBsIGPHZ7NzZv%2F%2Fx%2F%2Fn7H2ezc2v%2FaajY8t5%2F5VuEbK74x8%2F%2F%2FNb7ueV%2FBeEuA6yjLpfL5V984TU5Yn25I7279x9oF%2BrN2dTkrb%2F56x9e%2FN4Q70KAZmZSMzMTyx%2BxPdxx%2FAAHj%2BFeHERElMvlv%2FePP%2Fmrv%2FzRjevv8a7FfqMjkz98%2BWpt3eaIMBdDBYPVib3xL%2F7Wr90V8E9Ozsyii%2Bdnfn5mfn5m5eOZGdtOI0C4u62zK3Lo85%2FgXQV%2Fyf6xb%2F3ljwYHUgsLi7xrccrCwuLgQHp0ZCrWHhanhQ8E%2FB2d0S%2F%2B1q%2B1tYUDd%2FmnJmfyeVH2k6gD4S6h3%2F%2BD%2FeL8nnNhGNnnnn350sVhj66abtS0kX21%2F7pQLbypuSWU2Bs%2FeizR0RkNBqsDd23CoqtrXAh3v10fCNYj0d2m%2BEDm%2FEtD585e5l2F23K5%2FJnTycHX08dPJAR8ae%2FY3dKx%2B%2FYttocuT7wxOD50eWJocJxrUVAphLurDvequ7E9ncp8%2B3RSnKtM3Tc4kHrm6exjJxIiH0lmBv3vEhHR0OWJ69cmhy6PvzE4gW02noPdMu5R%2BaolNRt2S7oeOH4i4bkTnq%2BPTQ4NTpj%2Fi%2BlN5VzYLYPO3SW6Hth%2FoJ13FRzkcvnnnn257JN45WN%2BQzx3oUNrW7i17fbB91OTt4YGJ4YujyPoRYZwd4nIh0w5Z3Rk8rlnX1Zk4XRDzpxOThuzHn0n1xSuO%2FAbdQd%2Bo4OIstm5Nz4Mek%2BcU6YOhLtL9h9Urm3vu3jlxRde412FuM6dvWy8lz1%2BIsG7kIoEg9Wf3hv79N4YEWWzc9fHprAeKwiEuxtU2yQj60WntjO%2FRV7P9yXBYPUd67FvDI7%2Fa%2FLa9bHJYhH3%2BXMb9rm74fEnHlZnJpPL5Z95%2BsJP3vw570K8IZ3KhBqDom2Bt0U4XNfRGX14%2F8eT%2FanNNfqmwCZN8xUXFxnDbbuxz10KSrXt6VTmuWdf9spRvYI4czpJRN5aX10%2FXQ90dkUGB1KBQODujxARFQqF%2Bbm5uQ%2Fm5%2BfmCgVcHOsUhLvjEntbeZfgknQq88zTF7B8WoYzp5ORSIPI%2B98r0flA8%2FI7rvj9fn8wWBMMElGhUFjI582gz%2Bfxk2MnH%2B8CJBeLh2PxMO8q3IBkr9AzT1%2BQ9R1PiU39fr9%2Fs67Xb6kP37P13pbmxqbGuz%2FykerqajfLkxXC3VmKtO1I9sqZ%2B995V%2BEIczKz5h%2Fz%2BXxm0H90a1PkvpamrU219XUI%2BrIh3B2k6wFZB6nLIdntkk5lZN082vlA80b%2Fyl3V1bV1tWbQh%2B%2FZWr%2BlfrOu%2B3yIrPXCzN1BPQd38S7BcUh2e%2FVdvBJrb%2FLc4QRr6uyKECXL%2FuuBQGBpPTafz8%2FPzeXnF7AeWxpeBh306W7JZzJIdiecOZ2U71uq6wG7Fp8CgcDdH%2FnIlsYt25rv2dZ8z5bGLTXBYCCgylbj9UO4O6WzKyL3DkhzP7t8McSdeQkY7yrsV8ZkZk1%2Bv78mGNzSuGX5eiyC3oSxjFPkXkpFsjsq2T%2BW2Nsq2T6ruMNfjrkeu1nXiahYLC7k83Nz8%2FMfzM3NKXpYMTp3R6xze4B3nVH7ZHYXmFc2yaQ50uDae1mfz7d8PdbceKPaeqxCX6qb5N4kc%2F6loeXXpIATDCN7%2FqUh3lXYjNd7ETPoG5sa721pXtp44%2FdLPrdAuDtC4pnM4EAKt91wR9%2BFK5INvmLtTbxLuL0e29jUuHw9VsqgR7jbLxQKynoduWFk5RsXCCuXy1%2B6OMy7CjuJNqtcWo81g16y9ViEu%2F0kProdd95wmWTNu64HhO17Vh6E4PXrYxHu9hOtPbHL%2BZeGsIjqMvmad08cbmxuvLljPdZzQY9wt5mbWwLclE5lMGrnQrLmXYSx%2B0Z59CAECZcR%2BJJ1KfXbGLVzYjbvHr3b6kpe37x%2Fx0EIS%2BcVC3gQgugvPp4j5UwGAxm%2Bkq%2FIc8PCUCgozV3JAoHA8vVY0Q5CQLjbScqZjGFkMZDhyzCyMl1YIOyaaiUEPAgBYxk7OX2BNRfY%2ByiC5CvXpXlTGG8Pj45M8q7CQcsPQiCi%2Bbk5LgchINztJN%2FAfXAgJffvoVcMDqQMIyvH%2B8LmSD3vElx1V3X1XdXVVFdLRObdBOc%2BmP%2FFLzSnPy%2FGMrYReQ9v2aQ8ntCjpJnMyPdrsn53VVeb18feXfsRpz8Xwt020rxrXtJ38Yqsd%2FX0ouQr13mXYA853n%2BID%2BFuGy9u4C0hl8ufPyvbwVWelk5lpHmt9fqGSE9AuNtGsp%2FXSxeHZbp2Rg7STGbQvLsA4W4PyTZB5nL5vgtXeFcBd5JnMtMozy%2BLsBDu9pBsE2Syfwxtu4CkmcyotmGGC4S7PSQbuF%2B6INVhVTKRY2eqNBepigzhbg%2BZBu7J%2FjE52kMpjQ5P8S7BBjL9vggL4W6D5kiDTJ2ININdKcnRuYMLEO428MQR1euUTmUQHyIzjKwc76vQvDsN4W4DmQbufZi2Cw8ndMJ6INxtIE3nnsvlpdlJLbF06ibvEmwgzW%2BNsBDulZLpSJnBgRR2QIpvZFiGuZleI88ylZgQ7pWSJtmJaPD1NO8SYG3TUszcwWkI90rF2yVZF8JMxivkWFDFdUxOQ7hXSpqfUSS7h0iwo0mm3cNiQrhXSpqxDGYyADJBuFdKjvPCMJPxlhR2Q8JaEO4VkeZCDCS7t3yQW%2BBdQqUwlnEawr0icrTtJMuJJeAh0swzhYVwr4g0x1Kjc%2FeW1ATGMrAGhHtFYnEZDh5IpzK4dslb8N8L1oRwr8gWKcYyI97fVwcAd0C4V0SOmTsG7gDyQbiXT5oVIZwyCCAfhHv55NjLJc354ACwHMK9fHKcKoO23YvkaCzAUQh31clxOLhqIi2SjATBOQj38slxZJgch4OD52AY6DSEe%2FnkeGuMsYwXbdY38S6hUjiV3mkI9%2FJJsFsml8vjchgvwj3qYE0I9%2FJJ0LmjbfcoCX72wGkI9zLJ8duFk2M9SoJ3jeA0hHuZ5PjtkuDkWAXJ8bM3OoLrop2FcFcatsp4kRyHXoDTEO5lkmMsA14Ua5fhLNLcLFbynYVwL5McV5FIcJ9lBcmxVQbrPU5DuAN4jDQ3dwRHIdzVhX2QXtTZFeFdgj3w4%2Bc0hHuZJDh7AJcveZEcA3fCj5%2FzEO5lwoIqcCFH547FHhcg3NWFjcae0xxpwD5IWCeEO4BnJPa28i7BHmgsXIBwB%2FCMRHcb7xLsYbyHIyEdh3Av0xa8OwZ3JbrbpFnpwWHuLkC4l0mC0SfOHvCWnoPtvEuwDRZUXYBwB%2FCAWDwsx3lhhB3ubkG4A3jAkd4O3iXYBgcPuAPhDiC6WDws05ED6Qnck90NCHcA0cnUthM6d7cg3AGEluhuk6ltJ6ymugXhDiAuXQ8cPbaHdxV2QrK7BuEOIK7DvR3S7G03YSbjGoQ7gKBi8XDPgV28q7DZ6DAOHnAJwh1ARLoeePyJh3lXYT%2BMZVyDcAcQ0eNPPCzZQIaIRkcmcYy7axDuAMI5emyPZDtkTDgM0k0IdwCxJLrb5Bu1mwZeT%2FEuQSEId3XJ965fAp1dkeMnEryrcIRhZHGqjJsQ7mWS4Mc00iLJQVTSaI40yJrshKVU1yHcy4R1IbBXc6ThyacOSvx2avD1NO8S1OLnXQAAUKK77eixPRIney6XHxzAwN1VCHcAzhLdbRJPY0xIdvch3NUVizfxLgHo%2BImENHdGLQEzGfch3MuEmTtUKBQKPv7Ew9LcX6kEw8iic3cfFlTLlE55%2FoYDuMc3R51dkT%2F6s99UIdkJMxlO0LmrS4J7fHuRrgeOn0h0dkV4F%2BKeSxeGeZegIoS70nQ9gPmSm3oO7JLvFN%2FS0qmMYWR5V6EihHuZjPdk%2BHltjjTg0hJ3xOLh4ycSCr5b6kPbzgnCvUxyNCOhUHCUdw3Si8XDR3o7pDwIbE3Y3s4Rwl1poUblGkk3JbrbDvd2KNitL0n2j2HuxwvCvUwSnC1D2OrujOZIQ2Jva6K7TanZuiUspXKEcC%2BTHP0IdkPayMz0zq6Iyq36csn%2BMTmmlx6FcC%2BfYWS9%2Fmvs9fq5C4WCsXg41t4Ui4fxzbxD8pXrvEtQGsK9fNPeD3ciisXD2DCzfrF4WNcDkZaGWLypOdKAwctqRkcm8XPFF8K9fIaRjfGuoXIR7Ib8kBnWZnYvPbglVGO%2BhCPKN%2BTc2SHeJagO4V6%2BaWOWdwk2aG6p510CN7oe6OyKxNqbIpEGRU4CcAfadhEg3Msnx3VMCu6%2FNjO984Fmpc4AcBPadhEg3Msnx06AUCioziEEoVBw%2F8F2bFJ0FNp2QSDcyyfHVnciisXD0l9GqOuBw70dPQd28S5EfmjbBYFwL18ul8%2Fl8hL0gLH2JrnDXcHjunhB2y4OhHtF0qmMBDPruPe%2FhNXoeuDxJx6W4L%2BRV5w5neRdAtyGm3VUJCXFZEbWTX6xePgb33wUye6avotX5FiIkgPCvSLT78mwG5KI5Ns3kuhue%2FKpg1K%2BaIkpl8ufx7RdJAj3isjRuRNRrF2qE8SO9O4%2BfiLBuwq1nD87pMieK69AuFdEpg0zvEuwzZHe3Ye%2F0MG7CrWkU5m%2Bi1d4VwG%2FAtiVVVIAABbHSURBVOFekVwuL8eQMRQKynGJZqK7Dcnuvm9jHVU8CPdKSdO8dz3g%2BbF7Z1cE0xj3nX9pSJrfApkg3CuVTt3kXYI9OruaeZdQkVAoiGR3n2Fk%2By5gICMihHulRoYluWSjOdLg6ROMj59IYG%2BM%2B86cTmIdVUwI90rJ9IbUuxsiew7skmlN2Cv6Ll7B9ajCQrhXKpfLS5Pvib2tvEsoRygUPNyLRVS3pVOZF194jXcVsCqEuw2k2e3u0ckMzo1xXy6Xxw4ZwSHcbTA6PMW7BNt4bjITCgUT3W28q1DOiy%2B8Js0bVlkh3G0g09jRc5MZDGTcl%2BwfS%2FaP8a4C1oBwt4FhZKXZMOCtyQzadvdh1O4VCHd7yNW8eyYuPTdE8jpz1C5NKyM3hLs9ZBq7f7rbM5OZ%2FQfbeZegljOnkxi1ewXC3R4y3ckoFAp6Ys94KBT00ARJAudfGpLp51x6CHd7GEZWjhPETJ5YVsVMxk3J%2FrFzZy%2FzrgI2AOFuG5nG7p1dEfF3jkt2Br3I0qkM7p%2FnOQh328g0dtf1gPh9sSdmRxJIpzLPPH2BdxWwYQh320g2juwRe60yFAqK%2F95CArlc%2FpmnL2B7jBch3G0j0yEzRNQcaRD59h1bsJTqPCS7pyHc7TQ4kOZdgp1Ebt4jAr%2FwyMFMdpn6FdUg3O008LpUk5lEd5uwow%2B9RtDC5IBklwDC3U7pVEamDZFE1HNwF%2B8SwG1Idjkg3G0m04ZI8tTVqmALJLs0EO42G3xdqrE7TuZSCpJdJgh3mw0OpCTbXeCJq1WhcuZ%2BdiS7NBDu9pNsw3ssHsblQtJDsssH4W4%2FySYzhOZddoMDKexnlw%2FC3X4STma620Q7f3FkWKqFa46S%2FWPPPfuyZD%2BxQAh3h0g2mSHx7maHMLLFmdNJnAgmK4S7IySczAjWvGM6XCFzYwxuhSoxhLsj5JvMkHi335PskgI3pVOZr37lu%2FgGyg3h7hT5JjP7D7QLdRpBCs17WfouXvnjP%2FwH%2BZoPuAPC3SnJV67zLsFmuh4Q6jQC%2BWZfTsvl8s89%2B%2FKLL7zGuxBwA8LdKaMjk5KdM0OCNe%2BjI5NoP9dvdGTyq1%2F5rnxvKGE1CHcHyfeLJFzzLt132Am5XP7FF17DTnbVINwddOnCMO8S7CdU894n43fYXqMjk3%2Fyh%2F%2FQd%2FEK70LAbQh3BxlGVr4de0I17%2BlUBls%2BVrPUsMs3HoT1QLg7S8rWUqjmXb6Fa1sMDqTQsCsO4e4sKTe8C9W8J%2FvH0LwvZxjZZ56%2B8NyzL6NhVxzC3Vm5XF7KRT%2BhmvdzZ4d4lyCEXC5%2F%2FqUhXJ0EJoS746SczAjVvI%2BOTEr5CrohfRevfPUr3z139jLvQkAUCHfHpVMZ%2BZZVSbDm%2FczppHzjr3VK9o999SvfffGF15T9DoAlhLsbZG3ejx7bw7uK23K5vIKnG5qxfuZ0EuN1WAnh7gYpl1VJsKMiBwdS6mwOQazDmqrc%2FGShuu1ExFY8Hone72YZ7ltYWNy6rTYSaeBdiP30msDggChnvPzkzbdDjUEpv8%2BmXC7%2F7z9%2B6%2FlnX072X5eyXVDHzMzUzK2plY9nZm7Y9Sn8dn0gKO382aFEt1hH5toi0d3Wd2FYnEWFF194LRJpaJYu3w0je%2BnCcLJ%2FDJkO64SxjEsMIyvrBrUvCTN5pw%2FvQSHOi03lBgdSzz378le%2F8t2%2Bi1eQ7LB%2B6Nzdk3zleiwe5l2F%2FWLxcCweFuely8z34ycSnV0R3rWUz2zVBwdSmKpDeTBzd086lUnsbRNn%2B6CNYu3hSxcF2hG0sLD47z8e12sCra2NvGvZmFwu%2F4OXR%2F%2F2f%2F7bd%2F9%2B4Mb199Cqy8qFmTvC3VUaaR%2B%2F%2Fx7eVdhP1wPTxqxow5CfvPl2OnXz4%2Fffs2mTqz%2FnZTCMbLJ%2F7Hv%2F9ydn%2FkfyJ2%2B%2B%2Ff7MB7wrAmdhQVU2yf6xw70dUjbvR4%2FtEXDH5%2BBA6k%2F%2BMHP8RELMgVg6lRkcSA%2B8nhLtdREkgHB3lXnUjJTbZswDCQS8%2FN08SKuzK3L02B4RduWbS%2Bujw1MCvhaCTBDubpN1TyQR7T%2FQnnxlTMwFwMGBlPmyeri3w%2F2IT6cyIyOT6YmbUt58EcSEcHebOV2VMt91PXC4t0PkYwCS%2FWPJ%2FrHOrkhib6uje2nMEE9P3EzhdiLACcKdg%2BQr16UMdyJKdLclX7kueJyZXbyuBzq7Ip0PNMfi4UpWQcwvdnRkKjebT6Uy00YWvTmIAOHOwejI5OjIpJhLfJU70tvxzNNCh7spl8ubjTwRhULB5khDpKVhs77J8vSCVCrzQW7B%2FOeR4Unzr2MVFESGcOfj3NmhJ5%2BSM9xj8XCiu80MTa8wjKxhZHEoPMgExw%2FwIffC2tFje6Tc7gngIQh3bs7Le3M4oe7TBKAmhDs3yX5Bdw3a4vAXOOw4BIAlCHeeJG7eiej4iQTvEgDUhXDnSe7mPRYPe%2FpcRgBPQ7hzJnfzjpVVAF4Q7pzJ3byHQkGsrAJwgXDnT%2B7mHSurAFwg3PmT%2Fm47WFkFcB%2FCnb9cLi93846VVQD3IdyFIPfknbCyCuA6hLso5G7esbIK4DKEuyikb94Pf6Gj2erARQBwAsJdIHI370T0pWN7eJcAoAqEu0Ckb97N04B5VwGgBIS7WKRv3rGyCuAOhLtYkv1jct%2FfR9cDRzGcAXAewl04f%2FfCa7xLcFaiu03WWwwCiAPhLhzzDqu8q3AWrlkFcBrCXUTnZJ%2B8h0LBI727eVcBIDOEu4hGRya9dYPpMuBAMQBHIdwFJf22GcJwBsBJCHdBGUa27%2BIV3lU4KxYP9xzAmQQAjkC4i%2Bv82aFcLs%2B7Cmcd7u3AtncAJyDcxZXL5S9dHOZdhbN0PYDhDIATEO5CO3f2stwHEhBRZ1cEp70D2A7hLjpFVlYxnAGwF8JddMn%2BMemvadL1wOHeDt5VAEgF4e4B0l%2FTREQ9B3bhTAIAGyHcPUCFa5oIwxkAWyHcvUGFbZG4FR%2BAjRDu3mAYWem3RRJuxQdgH4S7Z%2FRduCL9tkgiegzb3gHsgHD3jFwur8K2yOZIAw6MBKgcwt1LVNgWSRjOANgB4e4x0t%2BnyfQl3IoPoDIId49JpzLSnxZJODASoGIId%2B9RYVskER3uxd08AMqHcPceRVZWcWAkQCUQ7p7Ud%2FFKOpXhXYXjMJwBKBvC3asUWVnFcAagPAh3r1LkwBkMZwDKg3D3sBdfeE2FlVUMZwDKgHD3MEVWVgnDGYCNQ7h7myIrq7oeOIrLmgA2AuHued8%2BneRdghtwq1WADUG4e54i16wS7uYBsBEIdxkocs0qds4ArB%2FCXQa5XP4MhjMAsAzCXRKDAykVTgMmDGcA1gfhLg9FmncMZwDWA%2BEuD8PInn9JiW3vGM4ArAnhLpVzZy%2BrcJ9VwnAGYC0Id9lgOAMAhHCXjyIHihGGMwAlIdwlpMiBYoThDMDqEO4SUmfbO4YzAKtBuMtJnW3vGM4AWEK4S%2BvM6SSGMwDKQrhLyzCyipz2juEMwEoId5kpcto7YTgDsALCXXKKnPZOGM4A%2FCqEu%2BTSqYwiZxJgOAOwHMJdfuqcSYDhDMAShLsSFNn2ThjOAHwI4a6E0ZFJRW7Fh%2BEMgAnhrorzZ4cwnAFQB8JdFblc%2FsUXXuNdhUswnAFAuCtkcCA1OJDiXYUbdD1w9Nge3lUA8IRwV4s6ZxIkutti8TDvKgC4QbirRZ0DIwnDGVAbwl056gxnQqHg4d4O3lUA8IFwV5E6d%2FPoObALwxlQE8JdReocGEkYzoCqEO6K6rt4RZG7eWA4A2pCuKtLnZ0zGM6AghDu6sJwBkBiCHelYTgDICuEu%2BqUGs40Rxp4VwHgEoS76pQazjyGAyNBGQh3UGg40xxpONK7m3cVAG5AuAORSnfzOPyFDgxnQAUIdyAyhzNq3GqVMJwBNSDc4bZzZy%2BnUxneVbgBwxlQAcIdfunbygxn9h9oD4WCvKsAcBDCHX4pncooMpzBrVZBegh3%2BBXqDGdi8XDPgV28qwBwCsId7qTOcOZwbweGMyArhDvcSanhDG61CrJCuIMFdYYznV2Rzq4I7yoA7IdwB2vqDGdwYCRICeEO1pQazuDASJAPwh1Wpc5wBnfzAPkg3KEUpYYzvEsAsBPCHUpRZzgTCgVxJgHIBOEOa1BnOIMDI0EmCHdYmzrDmS9h2zvIAuEOa1NnOIMzCUAaCHdYF4WGM70d2PYOEkC4w3opMpzBgZEgB4Q7rJc6w5nOrgi2vYPXIdxhA9QZzuBMAvA6hDtsjCLDmVAo2HMQK6vgYQh32Bh1hjPY9g6ehnCHDVNnOINt7%2BBdCHcohyLDmVg8nOhu410FQDkQ7lCOdCrTd%2FEK7yrccPTYHqysghch3KFM588OGUaWdxWOw634wKMQ7lCmXC5%2FRo3hTKK7DdvewXMQ7lC%2B0ZFJRYYzWFkFz0G4Q0UUGc40RxpwoBh4C8IdKqLOcAYHioG3INyhUooMZ7CyCt6CcAcbKDKcwcoqeAjCHWygznAGK6vgFQh3sMfoyOTgQIp3FY7Dyip4BcIdbHPmdDKXy%2FOuwnFYWQVPQLiDbRQZzuh64HBvB%2B8qANaAcAc7DQ6kVBjO9BzYhdOAQXAId7CZIsMZrKyC4BDuYLNcLn%2F%2BrPx384jFw51dEd5VAKwK4Q7267t4ZXRkkncVjsNpwCAyhDs4QoXhDO6zCiJDuIMjDCN76eIw7yoct%2F9AeygU5F0FgAWEOzhFhVutYlskCAvhDg5S4VarOHAGxIRwBwelU5nzL8m%2Fc%2BYImncQD8IdnNV34Yr0B0ZiWyQICOEOzlLkTAIc9Q6iQbiD40ZHJpP9Y7yrcFYoFDzSu5t3FQC%2FhHAHN7z4wmvSb3vff6Ad1zSBOBDu4IZcLv%2FiC6%2FxrsJZuh7ANU0gDoQ7uCTZPyb9mQSHv9CBa5pAEAh3cI8KK6u4pgkEgXAH9xhGVvpt74nuNhz1DiJAuIOrzp29LP22dxz1DmVizMYPhnAHt0k%2FnInFwziQAEqbzd684xGNMdLs%2FBQuh7t17YWC5JvkYDkVtr3jQAIozSL0fJqt2c4h3P0rH135IgZyk37bOw4kgNKsO1ovd%2B6%2BIiusfBSdu2pUuBUfDiSAEqw6WjsH7uRyuI%2BM%2FzMjtvJrmJ1F564c6W%2FFFwoFE91tvKsAEVnOKnzk7bEMEdHKVQOMZdT0d7Jfs4o972Bpbs5iw1iRMc3WuQyHcF%2F58jRza8r9MoC7dCrTd%2FEK7yochOYdLM3MrEw8RkQj45ds%2FCxuh7um%2BVaOZQqF%2FPzcrMuVgAjOnx2Se2UVzTusZNXO2juSIeIQ7kQ%2B2rTy8Wkj7XIlIALpDxRD8w53KBTyFpvcNbI9390P96oiK6xs3q3ep4ASpD9QDM07LJcxfrbywSLZO28ncj%2FczQ0zjN35dUwbaWyIVJbcK6to3mG56WmrKQWz%2B%2FpUXscPaD6LHZ2WL2igAulXVtG8g6lQyFuMoBnTiF0b77P3c3HaLWO1W%2F%2FnPx92vRYQhdwrq2jewfTu5A2LR52JYQ7hfnX8%2B4y0leefzWZvYk%2BksqRfWUXzDkT09s9HLB5lTmyW4XcqJPNZfOp3p6xe1kANyf6xdCrDuwqnoHmHaSNtcfkSY0S%2Bq%2BPft%2F3TcQp3zezc72zepyavY8O7yuReWUXzrjjLtt3n2%2BRA105EVOXMh11D5taNLXXbSfOt%2FKoWFxe2hJo51AQCmDayocZgRNI7Gel6YNqYlfjdCZQwbaR%2Flv7pHQ8yIiLm06qMW%2FYfgs3vZh2axdidiKYmr2PyrjK5V1bRvCvrreuvr3ywSiMiNjL%2Bz058Rj6dOxFlbt1oqItqVuegzc7e3Lptp%2FslgQhyuXwg4Jf1TkZo3tWUmnhj5Q5Is7f1aWTccmStkedt9phGebK4WnU2e%2FPtn1mtKYMa5L7Pas%2FBdt4lgKvm52YtA61KI7L7sLDleIb7IhWrmI9pFjWkJt7AOcAqk%2FhWHs2RBlnfl4Clq6Ovrrz8nhEVmdWqo324jWWI6Nat8VB9mzl5v%2BNrLBYXf%2FELo%2FGjUZ%2BPZ4XASzqVibeHQ6Eg70IcEWoMJvuv864C3JCaeMPywqUqzc%2BIRidsvip1OZ6dOxHdvuLWcvKevWm5BAGKOCdv8x6Lh5sl3REEy83cmkqNv2HxhEaLrOCzGlrYiH9fvKW%2BlRizvMHUbPZmdXWwJljvelHAn9zbIjcFqgYHcMy1zGazN3%2F65r8Ui4srnmF5bVHTyPbDZO7AuXMnomvjfavsiiQiujr6qvVpDKAAiSfvie42WYdOQESFQt5y1E5ETPNVMd8iFZ2ugX%2FnTkTTt69psr4%2F7PR0ekuoORDY7HZZwFsul9c0TdrlR41%2B8ubbvIsA%2BxUK%2BTeH%2Biy3hJjHJmqa78b4vzhdBv%2FO%2FTZNI7bKdIbozaE%2BXNmkpr4LV2S9pinR3abrAd5VgM1KJDsRLTLmwkDGJETnTuaBBPWtxBgxi%2BXVYnHx3akbmL8raGFhsbBQ%2FPj99%2FAuxH6bNlW9PzN34%2Fp7vAsB28zPzf70zX9ZLdnzWkEj7dqE%2FWeEWRKmczd3zjAiYqsN4K%2BOvoqLmxTUd%2FGKrNc07ccFTRKZzd4cfP0fV0t2n%2Bb3M%2F%2Bi5viofYkonbspM3MjVLu9qDHr3ZFEN2%2B%2BPT8%2FW1vXhP3vSvkgt9D5QIR3FfbT9UA6dXPynRnehUCl3p28MTrcv9q9QpmmEWNVmn%2FMsetRVxIuIqdn3qqru29RW6xa5V3FbPam8d5EbV0TlljVkU5luh6I1NZK%2BF%2B8tm4zLmjytEIhPzrc%2F7P0T612PRJ9mOykaVfHL7pZmHDhTkS19S0%2BphW04mr5XijkJ9%2B5RhrVBOvRwivinXfeT%2ByV8GYXoVDw1f7rsi4aS2%2FaSI%2F89Ee%2FeN9Y7Q8sJbs7i6jLiZiMt26N19ZHq5iPiK0%2BoaGZW1PGexN3Vdfoeq3LFYL7po2srAcS6DUBXNDkOfNzs9dG%2FzU18cZqoxjimuwkZrgT0a1b4zdn3grVbidt1XAnokIhb7w3MTMzVV0drK6W8NceljOMWVmb9x%2B%2BfHVhwfpNPYhmfm72reuvXx199YPc%2ByX%2BWF4raEzTNB%2BXZCdhw900PfPW7f2RGpW4g%2Bz83Oy7UzdmZqY00rBXUmKyNu%2FYE%2BkVs9mbE29dvjr6aukzaxkjpjGNtEWt6MLFSqtx8sRJm%2ByMfo6Yz6dVLbLCmuX6%2FYGPhrc3NbUi5aUUCgW%2F8c1HeVdhP8PIfvUr3%2BVdBVibn5udNtJTU9fXdQ65xhgjYtq1lHsbYywJ3bmbpm%2B91Vi%2Fs8iKJSc0txWLi79435h859q7Uzfm5rPF4mIgsBmLrtLI5fJSniam64HRkalpSbfze9TMral3p27cuP7%2Fxt8avHnz7YX83Jp%2FxRzF%2BDT3rlQqwQOd%2B5JYdD8xTVtfC79cdXXwruqa2romf1VgqaOvCdb7%2Fbj423tkbd6T%2FWNnTid5V6GipaNN5udm5%2Baz83Oz2WxmgzcLYqRRkTFGtKgVx8d%2F4ECZG%2BalcCeiePSRIisSMZ%2FGiqscJAkA4B6N8lTwM59P066O82%2FYl3gs3E3x6H7GiBExTdNWOywYAMBRGuWpUMV8pNEiidKwL%2FFkuJt2RHuIMY3IpxG6eABwC2Oab4EWhI11k4fD3WR28USaplUxKqCPBwBnMMY08mnEWJGKTKOiqLFu8ny4m%2BLRRxgViTFG5NOqFmkR4xoAqJx5jTyjZbeL43TF6UZJEu5L4tFHirdTnmmk%2BbSqIi0QacSIyffVAoDdzHPHfT7SiIqMbie6RkTeyPQl%2Fx%2BWl%2BWGMyxYywAAAABJRU5ErkJggg%3D%3D%22%20height%3D%22500%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1%2C%200%2C%200%2C%201%2C%20151%2C%2035)%22%3E%3Cg%20clip-path%3D%22url(%23603b38c7ba)%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(0.740402%2C%2079.454711)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2020.359375%20-68.703125%20C%2020.359375%20-65.867188%2019.554688%20-63.6875%2017.953125%20-62.15625%20C%2016.359375%20-60.632812%2014.398438%20-59.875%2012.078125%20-59.875%20C%209.753906%20-59.875%207.796875%20-60.632812%206.203125%20-62.15625%20C%204.609375%20-63.6875%203.8125%20-65.867188%203.8125%20-68.703125%20C%203.8125%20-71.535156%204.609375%20-73.710938%206.203125%20-75.234375%20C%207.796875%20-76.753906%209.753906%20-77.515625%2012.078125%20-77.515625%20C%2014.398438%20-77.515625%2016.359375%20-76.753906%2017.953125%20-75.234375%20C%2019.554688%20-73.710938%2020.359375%20-71.535156%2020.359375%20-68.703125%20Z%20M%2019.046875%20-52.90625%20L%2019.046875%200%20L%205.109375%200%20L%205.109375%20-52.90625%20Z%20M%2019.046875%20-52.90625%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1%2C%200%2C%200%2C%201%2C%20172%2C%2042)%22%3E%3Cg%20clip-path%3D%22url(%239014864a08)%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(7.013134%2C%2077.932339)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2032.25%20-55.9375%20L%2033.390625%20-42.921875%20L%2017.125%20-41.5%20C%2016.539062%20-41.445312%2015.863281%20-41.273438%2015.09375%20-40.984375%20C%2014.320312%20-40.703125%2013.984375%20-39.988281%2014.078125%20-38.84375%20C%2014.148438%20-38.039062%2014.832031%20-37.296875%2016.125%20-36.609375%20C%2017.425781%20-35.921875%2019.285156%20-35.140625%2021.703125%20-34.265625%20C%2026.660156%20-32.441406%2030.582031%20-30.4375%2033.46875%20-28.25%20C%2036.351562%20-26.0625%2037.957031%20-23.15625%2038.28125%20-19.53125%20C%2038.5%20-17%2038.242188%20-14.695312%2037.515625%20-12.625%20C%2036.796875%20-10.5625%2035.71875%20-8.773438%2034.28125%20-7.265625%20C%2032.84375%20-5.753906%2031.085938%20-4.546875%2029.015625%20-3.640625%20C%2026.953125%20-2.734375%2024.722656%20-2.171875%2022.328125%20-1.953125%20L%202.484375%20-0.21875%20L%201.34375%20-13.234375%20L%2019.46875%20-14.828125%20C%2020.550781%20-14.921875%2021.410156%20-15.269531%2022.046875%20-15.875%20C%2022.691406%20-16.476562%2022.972656%20-17.210938%2022.890625%20-18.078125%20C%2022.804688%20-19.097656%2022.160156%20-20.046875%2020.953125%20-20.921875%20C%2019.742188%20-21.796875%2017.785156%20-22.765625%2015.078125%20-23.828125%20C%2010.085938%20-25.796875%206.359375%20-27.765625%203.890625%20-29.734375%20C%201.421875%20-31.703125%200.0390625%20-34.316406%20-0.25%20-37.578125%20C%20-0.664062%20-42.421875%200.484375%20-46.328125%203.203125%20-49.296875%20C%205.929688%20-52.265625%209.898438%20-53.976562%2015.109375%20-54.4375%20Z%20M%2032.25%20-55.9375%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1%2C%200%2C%200%2C%201%2C%20215%2C%2030)%22%3E%3Cg%20clip-path%3D%22url(%23812e00e5f8)%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(3.864674%2C%2079.16345)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2040.359375%20-48.1875%20C%2044.578125%20-53.789062%2050.023438%20-56.753906%2056.703125%20-57.078125%20C%2059.597656%20-57.222656%2062.300781%20-56.921875%2064.8125%20-56.171875%20C%2067.320312%20-55.421875%2069.503906%20-54.304688%2071.359375%20-52.828125%20C%2073.210938%20-51.359375%2074.679688%20-49.597656%2075.765625%20-47.546875%20C%2076.847656%20-45.492188%2077.453125%20-43.234375%2077.578125%20-40.765625%20L%2079.390625%20-3.90625%20L%2064.8125%20-3.1875%20L%2063.234375%20-35.265625%20C%2063.117188%20-37.585938%2062.441406%20-39.5%2061.203125%20-41%20C%2059.960938%20-42.5%2058.078125%20-43.1875%2055.546875%20-43.0625%20C%2052.066406%20-42.894531%2049.5%20-41.132812%2047.84375%20-37.78125%20L%2049.578125%20-2.4375%20L%2035.015625%20-1.71875%20L%2033.4375%20-33.796875%20C%2033.3125%20-36.253906%2032.597656%20-38.195312%2031.296875%20-39.625%20C%2029.992188%20-41.0625%2028.035156%20-41.710938%2025.421875%20-41.578125%20C%2022.804688%20-41.453125%2020.914062%20-40.613281%2019.75%20-39.0625%20C%2018.59375%20-37.507812%2018.078125%20-35.503906%2018.203125%20-33.046875%20L%2019.78125%20-0.96875%20L%205.21875%20-0.25%20L%203.40625%20-37.109375%20C%203.144531%20-42.398438%204.820312%20-46.695312%208.4375%20-50%20C%2012.050781%20-53.3125%2017.265625%20-55.132812%2024.078125%20-55.46875%20C%2026.984375%20-55.613281%2029.90625%20-54.972656%2032.84375%20-53.546875%20C%2035.78125%20-52.128906%2038.285156%20-50.34375%2040.359375%20-48.1875%20Z%20M%2040.359375%20-48.1875%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1%2C%200%2C%200%2C%201%2C%20297%2C%2036)%22%3E%3Cg%20clip-path%3D%22url(%23587b630d45)%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(4.118723%2C%2074.232298)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2029.859375%20-15.5625%20L%2024%20-25%20L%2038.796875%20-34.265625%20C%2038.160156%20-35.140625%2037.265625%20-35.832031%2036.109375%20-36.34375%20C%2034.953125%20-36.851562%2033.648438%20-37.179688%2032.203125%20-37.328125%20C%2030.460938%20-37.492188%2028.835938%20-37.285156%2027.328125%20-36.703125%20C%2025.816406%20-36.117188%2024.476562%20-35.265625%2023.3125%20-34.140625%20C%2022.144531%20-33.015625%2021.1875%20-31.648438%2020.4375%20-30.046875%20C%2019.695312%20-28.441406%2019.234375%20-26.664062%2019.046875%20-24.71875%20C%2018.867188%20-22.914062%2019.039062%20-21.144531%2019.5625%20-19.40625%20C%2020.09375%20-17.675781%2020.890625%20-16.125%2021.953125%20-14.75%20C%2023.015625%20-13.375%2024.320312%20-12.222656%2025.875%20-11.296875%20C%2027.4375%20-10.378906%2029.15625%20-9.828125%2031.03125%20-9.640625%20C%2034.5%20-9.304688%2037.628906%20-10.003906%2040.421875%20-11.734375%20C%2043.210938%20-13.472656%2045.070312%20-16.082031%2046%20-19.5625%20L%2059.828125%20-16.671875%20C%2058.742188%20-13.066406%2057.210938%20-9.898438%2055.234375%20-7.171875%20C%2053.253906%20-4.453125%2050.929688%20-2.179688%2048.265625%20-0.359375%20C%2045.609375%201.460938%2042.65625%202.757812%2039.40625%203.53125%20C%2036.164062%204.3125%2032.738281%204.523438%2029.125%204.171875%20C%2025.226562%203.796875%2021.703125%202.738281%2018.546875%201%20C%2015.398438%20-0.726562%2012.773438%20-2.9375%2010.671875%20-5.625%20C%208.566406%20-8.3125%207.023438%20-11.398438%206.046875%20-14.890625%20C%205.078125%20-18.378906%204.785156%20-22.109375%205.171875%20-26.078125%20C%205.554688%20-30.046875%206.566406%20-33.660156%208.203125%20-36.921875%20C%209.835938%20-40.191406%2011.96875%20-42.9375%2014.59375%20-45.15625%20C%2017.21875%20-47.382812%2020.222656%20-49.023438%2023.609375%20-50.078125%20C%2026.992188%20-51.128906%2030.632812%20-51.46875%2034.53125%20-51.09375%20C%2040.601562%20-50.5%2045.691406%20-48.648438%2049.796875%20-45.546875%20C%2053.910156%20-42.441406%2056.835938%20-38.253906%2058.578125%20-32.984375%20Z%20M%2029.859375%20-15.5625%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20transform%3D%22matrix(1%2C%200%2C%200%2C%201%2C%20355%2C%2035)%22%3E%3Cg%20clip-path%3D%22url(%2393134fa52d)%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(4.354119%2C%2074.092183)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2026.03125%20-50.3125%20L%2022.453125%20-18.40625%20C%2022.171875%20-15.945312%2022.554688%20-13.910156%2023.609375%20-12.296875%20C%2024.671875%20-10.679688%2026.503906%20-9.726562%2029.109375%20-9.4375%20C%2031.703125%20-9.144531%2033.625%20-9.675781%2034.875%20-11.03125%20C%2036.125%20-12.382812%2036.890625%20-14.289062%2037.171875%20-16.75%20L%2040.75%20-48.65625%20L%2055.234375%20-47.03125%20L%2051.65625%20-15.125%20C%2051.375%20-12.664062%2051.691406%20-10.632812%2052.609375%20-9.03125%20C%2053.523438%20-7.4375%2055.28125%20-6.492188%2057.875%20-6.203125%20C%2060.476562%20-5.910156%2062.472656%20-6.429688%2063.859375%20-7.765625%20C%2065.253906%20-9.109375%2066.09375%20-11.007812%2066.375%20-13.46875%20L%2069.953125%20-45.375%20L%2084.453125%20-43.75%20L%2080.484375%20-8.375%20C%2080.171875%20-5.632812%2079.421875%20-3.195312%2078.234375%20-1.0625%20C%2077.046875%201.070312%2075.492188%202.867188%2073.578125%204.328125%20C%2071.660156%205.785156%2069.421875%206.828125%2066.859375%207.453125%20C%2064.304688%208.085938%2061.519531%208.234375%2058.5%207.890625%20C%2055.25%207.523438%2052.289062%206.515625%2049.625%204.859375%20C%2046.96875%203.210938%2044.597656%200.628906%2042.515625%20-2.890625%20C%2040.117188%200.128906%2037.476562%202.148438%2034.59375%203.171875%20C%2031.707031%204.203125%2028.640625%204.535156%2025.390625%204.171875%20C%2022.503906%203.847656%2019.878906%203.113281%2017.515625%201.96875%20C%2015.160156%200.832031%2013.191406%20-0.628906%2011.609375%20-2.421875%20C%2010.023438%20-4.210938%208.875%20-6.316406%208.15625%20-8.734375%20C%207.4375%20-11.148438%207.238281%20-13.765625%207.5625%20-16.578125%20L%2011.53125%20-51.953125%20Z%20M%2026.03125%20-50.3125%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20clip-path%3D%22url(%234920215742)%22%3E%3Cg%20transform%3D%22matrix(1%2C%200%2C%200%2C%201%2C%20476%2C%2036)%22%3E%3Cg%20clip-path%3D%22url(%23f8526278cb)%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(0.439086%2C%2076.003535)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2020.953125%20-36.453125%20L%2010.734375%20-36.453125%20L%2010.734375%200%20L%207.46875%200%20L%207.46875%20-36.453125%20L%201.515625%20-36.453125%20L%201.515625%20-39.359375%20L%207.46875%20-39.359375%20L%207.46875%20-42.109375%20C%207.46875%20-46.222656%208.503906%20-49.28125%2010.578125%20-51.28125%20C%2012.660156%20-53.289062%2016.066406%20-54.296875%2020.796875%20-54.296875%20L%2020.796875%20-51.390625%20C%2017.035156%20-51.390625%2014.414062%20-50.664062%2012.9375%20-49.21875%20C%2011.46875%20-47.769531%2010.734375%20-45.398438%2010.734375%20-42.109375%20L%2010.734375%20-39.359375%20L%2020.953125%20-39.359375%20Z%20M%2020.953125%20-36.453125%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(26.313181%2C%2076.003535)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2023.265625%200.578125%20C%2019.597656%200.578125%2016.289062%20-0.238281%2013.34375%20-1.875%20C%2010.394531%20-3.519531%208.085938%20-5.875%206.421875%20-8.9375%20C%204.753906%20-12.007812%203.921875%20-15.601562%203.921875%20-19.71875%20C%203.921875%20-23.769531%204.765625%20-27.332031%206.453125%20-30.40625%20C%208.140625%20-33.476562%2010.46875%20-35.820312%2013.4375%20-37.4375%20C%2016.414062%20-39.050781%2019.738281%20-39.859375%2023.40625%20-39.859375%20C%2027.082031%20-39.859375%2030.394531%20-39.050781%2033.34375%20-37.4375%20C%2036.289062%20-35.820312%2038.597656%20-33.488281%2040.265625%20-30.4375%20C%2041.929688%20-27.394531%2042.765625%20-23.820312%2042.765625%20-19.71875%20C%2042.765625%20-15.601562%2041.914062%20-12.007812%2040.21875%20-8.9375%20C%2038.53125%20-5.875%2036.203125%20-3.519531%2033.234375%20-1.875%20C%2030.265625%20-0.238281%2026.941406%200.578125%2023.265625%200.578125%20Z%20M%2023.265625%20-2.3125%20C%2026.117188%20-2.3125%2028.789062%20-2.953125%2031.28125%20-4.234375%20C%2033.769531%20-5.515625%2035.757812%20-7.457031%2037.25%20-10.0625%20C%2038.75%20-12.675781%2039.5%20-15.894531%2039.5%20-19.71875%20C%2039.5%20-23.488281%2038.75%20-26.675781%2037.25%20-29.28125%20C%2035.757812%20-31.894531%2033.78125%20-33.84375%2031.3125%20-35.125%20C%2028.84375%20-36.40625%2026.1875%20-37.046875%2023.34375%20-37.046875%20C%2020.488281%20-37.046875%2017.84375%20-36.40625%2015.40625%20-35.125%20C%2012.96875%20-33.84375%2011%20-31.894531%209.5%20-29.28125%20C%208%20-26.675781%207.25%20-23.488281%207.25%20-19.71875%20C%207.25%20-15.894531%207.984375%20-12.675781%209.453125%20-10.0625%20C%2010.929688%20-7.457031%2012.890625%20-5.515625%2015.328125%20-4.234375%20C%2017.765625%20-2.953125%2020.410156%20-2.3125%2023.265625%20-2.3125%20Z%20M%2023.265625%20-2.3125%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(75.597006%2C%2076.003535)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%209.203125%20-31.234375%20C%2010.171875%20-34.140625%2011.882812%20-36.351562%2014.34375%20-37.875%20C%2016.8125%20-39.394531%2019.957031%20-40.15625%2023.78125%20-40.15625%20L%2023.78125%20-36.75%20L%2022.6875%20-36.75%20C%2018.820312%20-36.75%2015.609375%20-35.648438%2013.046875%20-33.453125%20C%2010.484375%20-31.253906%209.203125%20-27.664062%209.203125%20-22.6875%20L%209.203125%200%20L%205.9375%200%20L%205.9375%20-39.359375%20L%209.203125%20-39.359375%20Z%20M%209.203125%20-31.234375%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(103.500435%2C%2076.003535)%22%3E%3Cg%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(126.475498%2C%2076.003535)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2042.328125%200%20L%2039.0625%200%20L%209.203125%20-45.515625%20L%209.203125%200%20L%205.9375%200%20L%205.9375%20-50.8125%20L%209.203125%20-50.8125%20L%2039.0625%20-5.4375%20L%2039.0625%20-50.8125%20L%2042.328125%20-50.8125%20Z%20M%2042.328125%200%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(177.353799%2C%2076.003535)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2023.265625%200.578125%20C%2019.597656%200.578125%2016.289062%20-0.238281%2013.34375%20-1.875%20C%2010.394531%20-3.519531%208.085938%20-5.875%206.421875%20-8.9375%20C%204.753906%20-12.007812%203.921875%20-15.601562%203.921875%20-19.71875%20C%203.921875%20-23.769531%204.765625%20-27.332031%206.453125%20-30.40625%20C%208.140625%20-33.476562%2010.46875%20-35.820312%2013.4375%20-37.4375%20C%2016.414062%20-39.050781%2019.738281%20-39.859375%2023.40625%20-39.859375%20C%2027.082031%20-39.859375%2030.394531%20-39.050781%2033.34375%20-37.4375%20C%2036.289062%20-35.820312%2038.597656%20-33.488281%2040.265625%20-30.4375%20C%2041.929688%20-27.394531%2042.765625%20-23.820312%2042.765625%20-19.71875%20C%2042.765625%20-15.601562%2041.914062%20-12.007812%2040.21875%20-8.9375%20C%2038.53125%20-5.875%2036.203125%20-3.519531%2033.234375%20-1.875%20C%2030.265625%20-0.238281%2026.941406%200.578125%2023.265625%200.578125%20Z%20M%2023.265625%20-2.3125%20C%2026.117188%20-2.3125%2028.789062%20-2.953125%2031.28125%20-4.234375%20C%2033.769531%20-5.515625%2035.757812%20-7.457031%2037.25%20-10.0625%20C%2038.75%20-12.675781%2039.5%20-15.894531%2039.5%20-19.71875%20C%2039.5%20-23.488281%2038.75%20-26.675781%2037.25%20-29.28125%20C%2035.757812%20-31.894531%2033.78125%20-33.84375%2031.3125%20-35.125%20C%2028.84375%20-36.40625%2026.1875%20-37.046875%2023.34375%20-37.046875%20C%2020.488281%20-37.046875%2017.84375%20-36.40625%2015.40625%20-35.125%20C%2012.96875%20-33.84375%2011%20-31.894531%209.5%20-29.28125%20C%208%20-26.675781%207.25%20-23.488281%207.25%20-19.71875%20C%207.25%20-15.894531%207.984375%20-12.675781%209.453125%20-10.0625%20C%2010.929688%20-7.457031%2012.890625%20-5.515625%2015.328125%20-4.234375%20C%2017.765625%20-2.953125%2020.410156%20-2.3125%2023.265625%20-2.3125%20Z%20M%2023.265625%20-2.3125%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(226.637623%2C%2076.003535)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2010.796875%20-36.53125%20L%2010.796875%20-10.515625%20C%2010.796875%20-7.609375%2011.328125%20-5.613281%2012.390625%20-4.53125%20C%2013.453125%20-3.445312%2015.335938%20-2.90625%2018.046875%20-2.90625%20L%2022.46875%20-2.90625%20L%2022.46875%200%20L%2017.546875%200%20C%2014.109375%200%2011.578125%20-0.804688%209.953125%20-2.421875%20C%208.335938%20-4.046875%207.53125%20-6.742188%207.53125%20-10.515625%20L%207.53125%20-36.53125%20L%201.59375%20-36.53125%20L%201.59375%20-39.359375%20L%207.53125%20-39.359375%20L%207.53125%20-49.359375%20L%2010.796875%20-49.359375%20L%2010.796875%20-39.359375%20L%2022.46875%20-39.359375%20L%2022.46875%20-36.53125%20Z%20M%2010.796875%20-36.53125%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(254.323616%2C%2076.003535)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%207.609375%20-48.125%20C%206.835938%20-48.125%206.1875%20-48.378906%205.65625%20-48.890625%20C%205.125%20-49.398438%204.859375%20-50.085938%204.859375%20-50.953125%20C%204.859375%20-51.773438%205.125%20-52.453125%205.65625%20-52.984375%20C%206.1875%20-53.515625%206.835938%20-53.78125%207.609375%20-53.78125%20C%208.378906%20-53.78125%209.03125%20-53.515625%209.5625%20-52.984375%20C%2010.09375%20-52.453125%2010.359375%20-51.773438%2010.359375%20-50.953125%20C%2010.359375%20-50.085938%2010.09375%20-49.398438%209.5625%20-48.890625%20C%209.03125%20-48.378906%208.378906%20-48.125%207.609375%20-48.125%20Z%20M%209.203125%20-39.359375%20L%209.203125%200%20L%205.9375%200%20L%205.9375%20-39.359375%20Z%20M%209.203125%20-39.359375%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(272.080407%2C%2076.003535)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2023.265625%200.578125%20C%2019.597656%200.578125%2016.289062%20-0.238281%2013.34375%20-1.875%20C%2010.394531%20-3.519531%208.085938%20-5.875%206.421875%20-8.9375%20C%204.753906%20-12.007812%203.921875%20-15.601562%203.921875%20-19.71875%20C%203.921875%20-23.769531%204.765625%20-27.332031%206.453125%20-30.40625%20C%208.140625%20-33.476562%2010.46875%20-35.820312%2013.4375%20-37.4375%20C%2016.414062%20-39.050781%2019.738281%20-39.859375%2023.40625%20-39.859375%20C%2027.082031%20-39.859375%2030.394531%20-39.050781%2033.34375%20-37.4375%20C%2036.289062%20-35.820312%2038.597656%20-33.488281%2040.265625%20-30.4375%20C%2041.929688%20-27.394531%2042.765625%20-23.820312%2042.765625%20-19.71875%20C%2042.765625%20-15.601562%2041.914062%20-12.007812%2040.21875%20-8.9375%20C%2038.53125%20-5.875%2036.203125%20-3.519531%2033.234375%20-1.875%20C%2030.265625%20-0.238281%2026.941406%200.578125%2023.265625%200.578125%20Z%20M%2023.265625%20-2.3125%20C%2026.117188%20-2.3125%2028.789062%20-2.953125%2031.28125%20-4.234375%20C%2033.769531%20-5.515625%2035.757812%20-7.457031%2037.25%20-10.0625%20C%2038.75%20-12.675781%2039.5%20-15.894531%2039.5%20-19.71875%20C%2039.5%20-23.488281%2038.75%20-26.675781%2037.25%20-29.28125%20C%2035.757812%20-31.894531%2033.78125%20-33.84375%2031.3125%20-35.125%20C%2028.84375%20-36.40625%2026.1875%20-37.046875%2023.34375%20-37.046875%20C%2020.488281%20-37.046875%2017.84375%20-36.40625%2015.40625%20-35.125%20C%2012.96875%20-33.84375%2011%20-31.894531%209.5%20-29.28125%20C%208%20-26.675781%207.25%20-23.488281%207.25%20-19.71875%20C%207.25%20-15.894531%207.984375%20-12.675781%209.453125%20-10.0625%20C%2010.929688%20-7.457031%2012.890625%20-5.515625%2015.328125%20-4.234375%20C%2017.765625%20-2.953125%2020.410156%20-2.3125%2023.265625%20-2.3125%20Z%20M%2023.265625%20-2.3125%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%221%22%3E%3Cg%20transform%3D%22translate(321.364232%2C%2076.003535)%22%3E%3Cg%3E%3Cpath%20d%3D%22M%2023.703125%20-40.15625%20C%2028.390625%20-40.15625%2032.207031%20-38.71875%2035.15625%20-35.84375%20C%2038.101562%20-32.96875%2039.578125%20-28.703125%2039.578125%20-23.046875%20L%2039.578125%200%20L%2036.390625%200%20L%2036.390625%20-22.828125%20C%2036.390625%20-27.515625%2035.203125%20-31.101562%2032.828125%20-33.59375%20C%2030.460938%20-36.082031%2027.25%20-37.328125%2023.1875%20-37.328125%20C%2018.9375%20-37.328125%2015.539062%20-35.972656%2013%20-33.265625%20C%2010.46875%20-30.566406%209.203125%20-26.554688%209.203125%20-21.234375%20L%209.203125%200%20L%205.9375%200%20L%205.9375%20-39.359375%20L%209.203125%20-39.359375%20L%209.203125%20-31.015625%20C%2010.316406%20-33.960938%2012.164062%20-36.222656%2014.75%20-37.796875%20C%2017.332031%20-39.367188%2020.316406%20-40.15625%2023.703125%20-40.15625%20Z%20M%2023.703125%20-40.15625%20%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Prismew" class="brand-logo-image">
+                </h1>
+                <p class="onboarding-kicker">Make Notion feel like yours.</p>
+              </div>
+            </div>
+            <label class="master-control" for="enabled">
+              <span>Theme</span>
+              <input id="enabled" class="toggle" type="checkbox" role="switch">
+            </label>
+          </header>
+
+          <section class="presets-section" aria-labelledby="presetsTitle">
+            <div class="section-heading">
+              <div>
+                <h2 id="presetsTitle">Color Presets</h2>
+                <p class="section-help onboarding-only">Choose a starting look or make your own.</p>
+              </div>
+              <button id="customizeColors" class="header-customize-btn" type="button" title="Customize Colors">
+                <span aria-hidden="true">✦</span> Customize
+              </button>
+            </div>
+
+            <div class="preset-columns" aria-hidden="true">
+              <span>Sidebar</span><span>Page</span><span>Accent</span><span>Tags</span><span>Name</span>
+            </div>
+            <div id="customThemeStatus" class="custom-theme-status" hidden>
+              <span class="custom-dot" aria-hidden="true"></span>
+              <span>Custom colors</span>
+              <small>Unsaved</small>
+            </div>
+            <p id="favoritesEmpty" class="presets-empty" hidden>No presets yet. Customize the current colors to create one.</p>
+            <div id="favoritesList" class="presets-list"></div>
+          </section>
+
+          <details id="moreSettings" class="more-settings">
+            <summary><span>More settings</span><span class="summary-toggle" aria-hidden="true"></span></summary>
+
+            <details id="fontSection" class="settings-section" open>
+              <summary><span>Font</span><span class="summary-toggle" aria-hidden="true"></span></summary>
+              <div class="settings-section-body">
+                <div class="font-toolbar">
+                  <div class="font-current-badge" title="Currently active font">
+                    <span class="font-current-dot"></span>
+                    <span id="fontCurrentLabel" class="font-current-label">Notion Default</span>
+                  </div>
+                  <button type="button" id="fontResetDefault" class="font-reset-chip" aria-label="Reset to Notion default font" title="Reset font to Notion default">
+                    <span class="font-reset-icon" aria-hidden="true">↺</span>
+                    <span id="fontResetText" class="font-reset-text">Default</span>
+                  </button>
+                </div>
+                <div id="fontTabs" class="font-tabs" role="tablist" aria-label="Font languages">
+                  <button type="button" role="tab" data-font-category="favorite" aria-selected="true" aria-label="Favorite fonts">★</button>
+                  <button type="button" role="tab" data-font-category="en" aria-selected="false">EN</button>
+                  <button type="button" role="tab" data-font-category="zh_cn" aria-selected="false">简</button>
+                  <button type="button" role="tab" data-font-category="zh_tw" aria-selected="false">繁</button>
+                  <button type="button" role="tab" data-font-category="ja" aria-selected="false">あ</button>
+                  <button type="button" role="tab" data-font-category="ko" aria-selected="false">가</button>
+                </div>
+                <div id="fontList" class="font-list"></div>
+                <select id="fontFamily" hidden aria-label="Font">
+                  <option value="default">Notion Default</option>
+                  <option value="pixel">Fusion Pixel Font</option>
+                </select>
+              </div>
+            </details>
+
+            <details id="hideSection" class="settings-section">
+              <summary><span>Hidden Elements</span><span class="summary-toggle" aria-hidden="true"></span></summary>
+              <div class="settings-section-body hidden-elements-list">
+                <label><span>Add a comment</span><input id="hideComments" class="check-control" type="checkbox"></label>
+                <label><span>Properties on database pages</span><input id="hideDatabaseProperties" class="check-control" type="checkbox"></label>
+              </div>
+            </details>
+          </details>
+
+          <div class="collapsed-cat" aria-hidden="true" title="🐱">
+            <svg id="catSvg" viewBox="20 40 1060 900" width="72" height="72" fill="none">
+              <defs>
+                <clipPath id="eyeClipL">
+                  <path d="M 375 208 L 396 208 L 419 212 L 434 217 L 461 233 L 473 244 L 487 263 L 498 290 L 501 311 L 500 331 L 495 351 L 486 370 L 476 384 L 463 397 L 443 411 L 420 421 L 390 427 L 366 427 L 343 423 L 328 418 L 303 404 L 287 389 L 276 374 L 265 348 L 262 331 L 263 306 L 267 290 L 277 268 L 289 251 L 302 238 L 326 222 L 352 212 L 375 208 Z"/>
+                </clipPath>
+                <clipPath id="eyeClipR">
+                  <path d="M 616 288 L 643 288 L 664 292 L 685 300 L 703 311 L 723 330 L 731 341 L 740 359 L 746 380 L 747 408 L 745 420 L 739 439 L 727 460 L 716 473 L 697 488 L 677 498 L 657 504 L 642 506 L 607 505 L 584 499 L 566 491 L 546 477 L 531 461 L 518 439 L 511 417 L 510 387 L 513 372 L 524 346 L 537 328 L 549 316 L 568 303 L 595 292 L 616 288 Z"/>
+                </clipPath>
+              </defs>
+              <path class="svg-cat-tail" id="svgTail" d="M 918 598 L 927 598 L 940 602 L 952 612 L 960 625 L 960 759 L 951 783 L 940 805 L 911 847 L 875 883 L 858 896 L 833 911 L 816 851 L 800 850 L 800 799 L 806 813 L 811 837 L 814 839 L 843 815 L 870 780 L 887 741 L 892 713 L 891 681 L 885 645 L 887 624 L 893 612 L 900 605 L 918 598 Z" fill="#221F2A"/>
+              <path id="svgBody" d="M 348 29 L 355 29 L 363 33 L 384 58 L 416 110 L 438 156 L 509 173 L 592 199 L 653 222 L 706 246 L 778 218 L 840 199 L 868 194 L 883 194 L 892 197 L 897 202 L 899 208 L 898 223 L 885 263 L 803 450 L 825 452 L 852 458 L 890 472 L 938 500 L 962 522 L 964 525 L 963 529 L 955 527 L 941 516 L 917 502 L 879 485 L 835 472 L 795 467 L 783 493 L 809 498 L 834 506 L 877 526 L 903 542 L 936 570 L 920 570 L 885 548 L 837 526 L 805 516 L 774 510 L 760 536 L 787 548 L 812 565 L 816 569 L 815 584 L 790 568 L 763 555 L 750 551 L 733 575 L 707 602 L 689 616 L 666 629 L 670 662 L 677 678 L 683 686 L 699 699 L 732 716 L 753 731 L 774 752 L 786 769 L 803 804 L 812 839 L 825 831 L 825 875 L 883 875 L 865 891 L 830 914 L 796 930 L 778 936 L 752 941 L 711 940 L 682 932 L 671 926 L 660 936 L 641 944 L 621 947 L 596 946 L 586 943 L 582 938 L 581 913 L 583 886 L 567 937 L 561 942 L 544 942 L 534 938 L 524 929 L 519 917 L 521 887 L 532 859 L 524 802 L 525 752 L 529 727 L 539 693 L 564 640 L 501 637 L 440 627 L 381 611 L 343 596 L 317 583 L 274 554 L 237 516 L 221 492 L 212 474 L 203 449 L 200 433 L 173 432 L 134 436 L 91 448 L 65 461 L 60 461 L 60 456 L 75 444 L 116 425 L 157 416 L 198 416 L 198 391 L 174 386 L 118 384 L 85 388 L 56 396 L 52 396 L 50 392 L 58 386 L 75 379 L 116 369 L 156 367 L 200 373 L 205 346 L 179 338 L 150 334 L 100 336 L 72 343 L 67 343 L 66 338 L 96 325 L 129 319 L 172 320 L 210 329 L 223 288 L 254 205 L 296 106 L 319 60 L 330 43 L 338 34 L 348 29 Z" fill="#221F2A"/>
+              <g id="svgHeadGroup">
+                <path id="svgEar1" d="M 348 74 L 349 77 L 352 76 L 352 78 L 356 78 L 353 76 L 354 74 L 356 74 L 355 76 L 357 77 L 359 76 L 362 79 L 362 82 L 360 81 L 361 86 L 364 86 L 365 82 L 370 89 L 369 91 L 371 92 L 368 91 L 369 95 L 367 97 L 370 101 L 372 98 L 375 99 L 378 106 L 377 108 L 379 108 L 378 110 L 381 114 L 379 117 L 382 117 L 381 119 L 378 118 L 380 128 L 383 128 L 382 124 L 384 123 L 383 126 L 385 127 L 385 134 L 387 135 L 386 139 L 388 139 L 384 149 L 386 149 L 386 151 L 388 149 L 390 151 L 390 155 L 384 155 L 383 149 L 382 153 L 379 155 L 381 157 L 369 158 L 365 155 L 361 156 L 363 157 L 363 160 L 358 159 L 358 161 L 355 161 L 350 157 L 350 155 L 348 155 L 346 162 L 350 160 L 352 160 L 352 162 L 343 164 L 338 163 L 339 165 L 335 164 L 334 166 L 329 166 L 326 168 L 324 167 L 329 166 L 326 164 L 316 164 L 314 166 L 315 154 L 317 154 L 317 150 L 318 152 L 321 152 L 322 149 L 318 141 L 319 133 L 321 133 L 321 135 L 324 132 L 326 133 L 326 127 L 321 127 L 323 125 L 322 122 L 324 115 L 326 115 L 325 112 L 327 112 L 326 109 L 327 107 L 331 109 L 332 105 L 330 104 L 328 106 L 332 99 L 331 96 L 337 85 L 338 87 L 342 86 L 341 84 L 343 85 L 342 82 L 339 84 L 338 83 L 342 80 L 342 78 L 344 78 L 344 76 L 348 76 L 348 74 Z" fill="#987eff"/>
+                <path id="svgEar2" d="M 844 227 L 852 228 L 852 230 L 858 231 L 861 230 L 861 228 L 866 228 L 870 233 L 870 243 L 868 236 L 865 244 L 866 247 L 867 245 L 869 246 L 867 248 L 868 251 L 866 256 L 862 256 L 861 258 L 863 263 L 861 268 L 856 268 L 855 270 L 857 274 L 856 278 L 854 278 L 854 281 L 850 286 L 848 284 L 844 288 L 846 295 L 843 297 L 842 301 L 834 304 L 833 307 L 835 307 L 835 310 L 832 312 L 832 315 L 830 314 L 825 318 L 821 318 L 819 322 L 816 317 L 814 318 L 811 313 L 808 313 L 808 310 L 806 311 L 804 309 L 799 301 L 795 302 L 793 300 L 790 296 L 790 291 L 785 290 L 783 288 L 784 286 L 778 288 L 776 284 L 774 285 L 771 282 L 773 279 L 771 277 L 773 276 L 771 276 L 767 269 L 778 260 L 786 261 L 786 254 L 788 255 L 788 253 L 796 250 L 796 248 L 798 249 L 798 247 L 804 246 L 805 243 L 807 244 L 807 242 L 809 243 L 809 241 L 811 242 L 813 239 L 815 240 L 815 238 L 818 239 L 819 236 L 821 237 L 823 234 L 828 235 L 828 232 L 834 232 L 833 230 L 838 231 L 837 229 L 844 227 Z" fill="#987eff"/>
+                <g class="svg-eyes-blink">
+                  <path id="svgEye1" d="M 375 208 L 396 208 L 419 212 L 434 217 L 461 233 L 473 244 L 487 263 L 498 290 L 501 311 L 500 331 L 495 351 L 486 370 L 476 384 L 463 397 L 443 411 L 420 421 L 390 427 L 366 427 L 343 423 L 328 418 L 303 404 L 287 389 L 276 374 L 265 348 L 262 331 L 263 306 L 267 290 L 277 268 L 289 251 L 302 238 L 326 222 L 352 212 L 375 208 Z" fill="#faf7ff"/>
+                  <g clip-path="url(#eyeClipL)">
+                    <g id="pupilL" transform="translate(0, 0)">
+                      <circle cx="365" cy="305" r="23" fill="#120e18"/>
+                      <circle cx="369" cy="301" r="5.5" fill="#ffffff"/>
+                    </g>
+                  </g>
+                  <path id="svgEye2" d="M 616 288 L 643 288 L 664 292 L 685 300 L 703 311 L 723 330 L 731 341 L 740 359 L 746 380 L 747 408 L 745 420 L 739 439 L 727 460 L 716 473 L 697 488 L 677 498 L 657 504 L 642 506 L 607 505 L 584 499 L 566 491 L 546 477 L 531 461 L 518 439 L 511 417 L 510 387 L 513 372 L 524 346 L 537 328 L 549 316 L 568 303 L 595 292 L 616 288 Z" fill="#faf7ff"/>
+                  <g clip-path="url(#eyeClipR)">
+                    <g id="pupilR" transform="translate(0, 0)">
+                      <circle cx="605" cy="375" r="23.5" fill="#120e18"/>
+                      <circle cx="609" cy="371" r="5.5" fill="#ffffff"/>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </svg>
+          </div>
+
+          <button id="openNotion" class="onboarding-cta onboarding-only" type="button">
+            Apply &amp; Open Notion <span aria-hidden="true">↗</span>
+          </button>
+
+          <footer class="app-footer">
+            <span class="footer-note onboarding-only">You can change these settings anytime.</span>
+            <span id="versionLabel">v0.16.47</span>
+          </footer>
+        </section>
+
+        <section id="editorView" class="editor-view" aria-labelledby="editorTitle" hidden>
+          <header class="editor-header">
+            <button id="backFromEditor" class="icon-button" type="button" aria-label="Back to presets">←</button>
+            <div><p class="eyebrow">Live preview</p><h2 id="editorTitle">Customize Colors</h2></div>
+          </header>
+
+          <section class="editor-group" aria-labelledby="mainPageTitle">
+            <h3 id="mainPageTitle">Main Page</h3>
+            <div class="color-pair">
+              <div class="color-swatch-control">
+                <span>Background</span>
+                <button class="color-picker-trigger color-value-button" type="button" data-color-target="backgroundColor" aria-label="Choose page background color"><output id="backgroundValue" for="backgroundColor">#FCF6E5</output></button>
+                <input id="backgroundColor" type="hidden" value="#FCF6E5">
+              </div>
+              <button id="swapColors" class="swap-colors" type="button" title="Swap page colors" aria-label="Swap page background and text colors">
+                <img src="data:image/png;base64,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" alt="" aria-hidden="true">
+              </button>
+              <div class="color-swatch-control">
+                <span>Text</span>
+                <button class="color-picker-trigger color-value-button" type="button" data-color-target="textColor" aria-label="Choose page text color"><output id="textValue" for="textColor">#343E44</output></button>
+                <input id="textColor" type="hidden" value="#343E44">
+              </div>
+            </div>
+          </section>
+
+          <section class="editor-group" aria-labelledby="sidebarTitle">
+            <div class="editor-group-heading">
+              <div><h3 id="sidebarTitle">Sidebar</h3><p>Use page colors for sidebar</p></div>
+              <input id="linkSidebarColors" class="toggle" type="checkbox" role="switch">
+            </div>
+            <div class="color-pair sidebar-color-pair">
+              <div class="color-swatch-control">
+                <span>Background</span>
+                <button class="color-picker-trigger color-value-button" type="button" data-color-target="sidebarColor" aria-label="Choose sidebar background color"><output id="sidebarValue" for="sidebarColor">#5D6D74</output></button>
+                <input id="sidebarColor" type="hidden" value="#5D6D74">
+              </div>
+              <button id="swapSidebarColors" class="swap-colors" type="button" title="Swap sidebar colors" aria-label="Swap sidebar background and text colors">
+                <img src="data:image/png;base64,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" alt="" aria-hidden="true">
+              </button>
+              <div class="color-swatch-control">
+                <span>Text</span>
+                <button class="color-picker-trigger color-value-button" type="button" data-color-target="sidebarTextColor" aria-label="Choose sidebar text color"><output id="sidebarTextValue" for="sidebarTextColor">#E7E1CD</output></button>
+                <input id="sidebarTextColor" type="hidden" value="#E7E1CD">
+              </div>
+            </div>
+          </section>
+
+          <section class="editor-group extra-group" aria-labelledby="extraTitle">
+            <h3 id="extraTitle">Extra</h3>
+            <div class="extra-row">
+              <div><strong>Current page accent</strong><p>Selected page background</p></div>
+              <button id="selectedPagePreview" class="color-picker-trigger accent-value-button" type="button" data-color-target="sidebarActiveColor" aria-label="Choose current page accent color"><output id="sidebarActiveValue" for="sidebarActiveColor">#434D53</output></button>
+              <input id="sidebarActiveColor" type="hidden" value="#434D53">
+              <input id="sidebarAccentEnabled" class="toggle" type="checkbox" role="switch" aria-label="Enable current page accent">
+            </div>
+            <div class="extra-row tag-mode-row">
+              <div><strong>Database tag colors</strong><p>Select and multi-select properties</p></div>
+              <div class="mode-control" role="radiogroup" aria-label="Database tag colors">
+                <label title="Database tags: Light"><input type="radio" name="appearance" value="light"><span>☀️ Light</span></label>
+                <label title="Database tags: Dark"><input type="radio" name="appearance" value="dark"><span>🌙 Dark</span></label>
+              </div>
+            </div>
+          </section>
+
+          <label class="preset-name-field" for="presetName">
+            <span>Preset name <small>Optional</small></span>
+            <input id="presetName" type="text" maxlength="80" placeholder="e.g. Moonlit">
+          </label>
+
+          <button id="savePreset" class="primary-action save-preset" type="button">
+            <span aria-hidden="true">✦</span> Save as Preset
+          </button>
+          <p class="editor-note">Colors are already applied to Notion. Saving only adds them to your preset list.</p>
+        </section>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </main>
+
+    <section id="colorPicker" class="color-picker" role="dialog" aria-label="Color picker" hidden>
+      <div id="colorPickerField" class="color-picker-field" aria-label="Saturation and brightness" tabindex="0"><span id="colorPickerFieldThumb" class="color-picker-field-thumb"></span></div>
+      <div class="color-picker-slider-row">
+        <span id="colorPickerPreview" class="color-picker-preview" aria-hidden="true"></span>
+        <button id="colorPickerEyedropper" class="color-picker-eyedropper" type="button" title="Pick a color from the screen" aria-label="Pick a color from the screen">⌖</button>
+        <input id="colorPickerHue" class="color-picker-hue" type="range" min="0" max="360" value="0" aria-label="Hue">
+      </div>
+      <div class="color-picker-values">
+        <div id="colorPickerHexFields" class="color-picker-hex-fields"><input id="colorPickerHex" type="text" value="#000000" maxlength="7" spellcheck="false" aria-label="HEX color"></div>
+        <div id="colorPickerRgbFields" class="color-picker-rgb-fields" hidden>
+          <label><input id="colorPickerRed" type="number" min="0" max="255" aria-label="Red"><span>R</span></label>
+          <label><input id="colorPickerGreen" type="number" min="0" max="255" aria-label="Green"><span>G</span></label>
+          <label><input id="colorPickerBlue" type="number" min="0" max="255" aria-label="Blue"><span>B</span></label>
+        </div>
+        <select id="colorPickerFormat" aria-label="Color value format"><option value="hex" selected>HEX</option><option value="rgb">RGB</option></select>
+      </div>
+    </section>
+    <script>
+  window.chrome = {
+    storage: {
+      local: {
+        get: (keys, cb) => cb({
+          nptThemePresets: [{"id":"preset-avocado","name":"Avocado","backgroundColor":"#1D1614","textColor":"#F2E5DD","sidebarColor":"#15100F","sidebarTextColor":"#C6BCB5","sidebarActiveColor":"#267438","sidebarAccentEnabled":true,"linkSidebarColors":false,"appearance":"dark"},{"id":"preset-moonlit","name":"Moonlit","backgroundColor":"#FCF6E5","textColor":"#343E44","sidebarColor":"#5D6D74","sidebarTextColor":"#E7E1CD","sidebarActiveColor":"#434D53","sidebarAccentEnabled":true,"linkSidebarColors":false,"appearance":"light"},{"id":"preset-familiar","name":"Familiar","backgroundColor":"#20232E","textColor":"#A1AAB8","sidebarColor":"#1A1D28","sidebarTextColor":"#A4A7B6","sidebarActiveColor":"#B09B67","sidebarAccentEnabled":true,"linkSidebarColors":false,"appearance":"dark"},{"id":"preset-astral-ink","name":"Astral Ink","backgroundColor":"#FDFDFD","textColor":"#4C6A9F","sidebarColor":"#2B4258","sidebarTextColor":"#FFFFFF","sidebarActiveColor":"#BAA46D","sidebarAccentEnabled":true,"linkSidebarColors":false,"appearance":"light"}],
+          backgroundColor: "#1D1614",
+          textColor: "#F2E5DD",
+          sidebarColor: "#15100F",
+          sidebarTextColor: "#C6BCB5",
+          sidebarActiveColor: "#267438",
+          appearance: "dark",
+          sidebarAccentEnabled: true,
+          enabled: true
+        }),
+        set: (items, cb) => { if(cb) cb() },
+        onChanged: { addListener: () => {} }
+      }
+    },
+    runtime: {
+      getManifest: () => ({ version: "0.17.0" }),
+      lastError: null
+    },
+    tabs: {
+      query: (q, cb) => cb([{ id: 1 }]),
+      sendMessage: (id, msg, cb) => { if(cb) cb(); }
+    }
+  };
+  (() => {
+  "use strict";
+
+  const SETTINGS_REVISION_KEY = "nptSettingsRevision";
+  const LEGACY_FAVORITES_KEY = "nptThemeFavorites";
+  const PRESETS_KEY = "nptThemePresets";
+  const FONT_FAVORITES_KEY = "nptFontFavorites";
+  const MORE_SETTINGS_KEY = "nptMoreSettingsOpen";
+  const FONT_SECTION_OPEN_KEY = "nptFontSectionOpen";
+  const HIDE_SECTION_OPEN_KEY = "nptHideSectionOpen";
+  const THEME_KEYS = Object.freeze([
+    "backgroundColor",
+    "textColor",
+    "sidebarColor",
+    "sidebarTextColor",
+    "sidebarActiveColor",
+    "sidebarAccentEnabled",
+    "linkSidebarColors",
+    "appearance"
+  ]);
+
+  const BUILT_IN_PRESETS = Object.freeze([
+    {
+      id: "builtin-moonlit",
+      name: "Moonlit",
+      backgroundColor: "#FCF6E5",
+      textColor: "#343E44",
+      sidebarColor: "#5D6D74",
+      sidebarTextColor: "#E7E1CD",
+      sidebarActiveColor: "#434D53",
+      sidebarAccentEnabled: true,
+      linkSidebarColors: false,
+      appearance: "light"
+    },
+    {
+      id: "builtin-familiar",
+      name: "Familiar",
+      backgroundColor: "#20232E",
+      textColor: "#A1AAB8",
+      sidebarColor: "#1A1D28",
+      sidebarTextColor: "#A4A7B6",
+      sidebarActiveColor: "#B09B67",
+      sidebarAccentEnabled: true,
+      linkSidebarColors: false,
+      appearance: "dark"
+    },
+    {
+      id: "builtin-astral-ink",
+      name: "Astral Ink",
+      backgroundColor: "#FDFDFD",
+      textColor: "#4C6A9F",
+      sidebarColor: "#2B4258",
+      sidebarTextColor: "#FFFFFF",
+      sidebarActiveColor: "#BAA46D",
+      sidebarAccentEnabled: true,
+      linkSidebarColors: false,
+      appearance: "light"
+    }
+  ]);
+
+  const DEFAULTS = Object.freeze({
+    enabled: true,
+    ...Object.fromEntries(THEME_KEYS.map((key) => [key, BUILT_IN_PRESETS[0][key]])),
+    fontFamily: "pixel",
+    hideComments: false,
+    hideDatabaseProperties: false
+  });
+
+  const STORAGE_DEFAULTS = Object.freeze({
+    ...DEFAULTS,
+    [PRESETS_KEY]: null,
+    [LEGACY_FAVORITES_KEY]: [],
+    [FONT_FAVORITES_KEY]: ["pixel"],
+    [MORE_SETTINGS_KEY]: false,
+    [FONT_SECTION_OPEN_KEY]: null,
+    [HIDE_SECTION_OPEN_KEY]: null,
+    [SETTINGS_REVISION_KEY]: 0
+  });
+
+  const FONT_CATALOG = Object.freeze([
+    // Special / Default
+    {
+      id: "default",
+      name: "Notion Default",
+      family: "inherit",
+      categories: [],
+      badge: "System",
+      sample: "Default Notion Typography 123",
+      type: "system"
+    },
+    {
+      id: "pixel",
+      name: "Fusion Pixel Font",
+      family: '"Fusion Pixel NPT", monospace',
+      categories: ["zh_cn", "zh_tw", "ja", "ko"],
+      badge: "Pixel",
+      sample: "8-bit 复古像素点阵字 123",
+      type: "local"
+    },
+
+    // 简体中文 (zh_cn) - 100% 极速原生大字库
+    {
+      id: "pingfang_sc",
+      name: "苹方 / 现代黑体",
+      family: '-apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif',
+      categories: ["zh_cn"],
+      badge: "苹方",
+      sample: "清晰明澈的现代极简无衬线阅读排版 123",
+      type: "system"
+    },
+    {
+      id: "hiragino_gb",
+      name: "冬青黑体 (Hiragino)",
+      family: '"Hiragino Sans GB", "PingFang SC", "Microsoft YaHei", sans-serif',
+      categories: ["zh_cn"],
+      badge: "冬青",
+      sample: "通透清爽、高字怀经典日系中文黑体 123",
+      type: "system"
+    },
+    {
+      id: "fangsong_sc",
+      name: "华文仿宋 (FangSong)",
+      family: '"STFangsong", "FangSong", "SimFang", "Songti SC", serif',
+      categories: ["zh_cn"],
+      badge: "仿宋",
+      sample: "民国出版物典雅散文风，书卷气极浓 123",
+      type: "system"
+    },
+    {
+      id: "songti_sc",
+      name: "典雅宋体 (Songti)",
+      family: '"Songti SC", "STSong", "SimSun", "Source Han Serif SC", Georgia, serif',
+      categories: ["zh_cn"],
+      badge: "宋体",
+      sample: "诗意静谧的传统纸质书印刷质感 123",
+      type: "system"
+    },
+    {
+      id: "kaiti_sc",
+      name: "标准楷体 (Kaiti)",
+      family: '"Kaiti SC", "STKaiti", "KaiTi", "SimKai", cursive, serif',
+      categories: ["zh_cn"],
+      badge: "楷体",
+      sample: "笔力清劲，沉着端庄的传统手写楷书 123",
+      type: "system"
+    },
+    {
+      id: "yuanti_sc",
+      name: "柔和圆体 (Yuanti)",
+      family: '"Yuanti SC", "STYuanti", "PingFang SC", "Microsoft YaHei", sans-serif',
+      categories: ["zh_cn"],
+      badge: "圆体",
+      sample: "治愈手账日记，温润亲和的柔美圆体 123",
+      type: "system"
+    },
+    {
+      id: "mono_sc",
+      name: "极客等宽 (Code Mono)",
+      family: 'ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "PingFang SC", monospace',
+      categories: ["zh_cn"],
+      badge: "等宽",
+      sample: "const idea = new KnowledgeBase(123);",
+      type: "system"
+    },
+    {
+      id: "lxgw_wenkai",
+      name: "霞鹜文楷 (本地优先)",
+      family: 'local("LXGW WenKai"), local("霞鹜文楷"), local("LXGWWenKai-Regular"), "Kaiti SC", "STKaiti", cursive, sans-serif',
+      categories: ["zh_cn"],
+      badge: "文楷",
+      sample: "落霞与孤鹜齐飞，秋水共长天一色 123",
+      type: "system"
+    },
+
+    // 繁體中文 (zh_tw) - 100% 極速原生大字庫
+    {
+      id: "pingfang_tc",
+      name: "苹方 繁体 (PingFang TC)",
+      family: '-apple-system, BlinkMacSystemFont, "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif',
+      categories: ["zh_tw"],
+      badge: "蘋方",
+      sample: "Apple官方繁體正體中文極簡黑體 123",
+      type: "system"
+    },
+    {
+      id: "jhenghei",
+      name: "微軟正黑 (JhengHei)",
+      family: '"Microsoft JhengHei", "PingFang TC", "Heiti TC", sans-serif',
+      categories: ["zh_tw"],
+      badge: "正黑",
+      sample: "清晰工整的正體中文螢幕閱讀黑體 123",
+      type: "system"
+    },
+    {
+      id: "ligothic",
+      name: "蘋果儷黑 (LiGothic)",
+      family: '"Apple LiGothic", "PingFang TC", "Microsoft JhengHei", sans-serif',
+      categories: ["zh_tw"],
+      badge: "儷黑",
+      sample: "經典高對比度正體黑體排版 123",
+      type: "system"
+    },
+    {
+      id: "songti_tc",
+      name: "麗宋 / 經典明體 (Songti TC)",
+      family: '"Songti TC", "LiSong Pro", "Apple LiSung", "MingLiU", "PMingLiU", serif',
+      categories: ["zh_tw"],
+      badge: "明體",
+      sample: "優雅洗鍊的港台古典文人印刷明體 123",
+      type: "system"
+    },
+    {
+      id: "biaukai",
+      name: "標準正楷 (BiauKai)",
+      family: '"BiauKai", "DFKai-SB", "Kaiti TC", "STKaiti", cursive, serif',
+      categories: ["zh_tw"],
+      badge: "標楷",
+      sample: "端莊典雅的傳統正體毛筆楷書 123",
+      type: "system"
+    },
+    {
+      id: "lisung",
+      name: "蘋果儷細宋 (LiSung)",
+      family: '"Apple LiSung", "LiSong Pro", "Songti TC", "MingLiU", serif',
+      categories: ["zh_tw"],
+      badge: "細宋",
+      sample: "秀美纖細的藏書票刻版明朝印刷體 123",
+      type: "system"
+    },
+    {
+      id: "mono_tc",
+      name: "繁體等寬 (TC Mono)",
+      family: 'ui-monospace, "SF Mono", Menlo, Monaco, Consolas, "PingFang TC", monospace',
+      categories: ["zh_tw"],
+      badge: "等寬",
+      sample: "const notion = new Workspace(123);",
+      type: "system"
+    },
+    {
+      id: "rounded_tc",
+      name: "繁體圓體 (TC Rounded)",
+      family: '"Yuanti TC", "BiaoGothic", "PingFang TC", "Microsoft JhengHei", sans-serif',
+      categories: ["zh_tw"],
+      badge: "圓體",
+      sample: "溫潤治癒的生活手帳與日誌 123",
+      type: "system"
+    },
+    {
+      id: "iansui",
+      name: "芫荽體 (本地優先)",
+      family: 'local("Iansui"), local("芫荽"), "BiauKai", "Kaiti TC", cursive, sans-serif',
+      categories: ["zh_tw"],
+      badge: "硬筆",
+      sample: "台灣開源頂流！手帳與閱讀生活感 123",
+      type: "system"
+    },
+    {
+      id: "wenkai_tc",
+      name: "霞鹜文楷 繁体 (本地优先)",
+      family: 'local("LXGW WenKai TC"), local("霞鹜文楷 繁體"), "BiauKai", "Kaiti TC", cursive, sans-serif',
+      categories: ["zh_tw"],
+      badge: "文楷",
+      sample: "落霞與孤鶩齊飛，秋水共長天一色 123",
+      type: "system"
+    },
+
+    // English (EN) - 100% Instant Native Masterpieces
+    {
+      id: "avenir_next",
+      name: "Avenir Next",
+      family: '"Avenir Next", -apple-system, "Segoe UI", sans-serif',
+      categories: ["en"],
+      badge: "Geometric",
+      sample: "Clean modern geometric elegance 123",
+      type: "system"
+    },
+    {
+      id: "helvetica_neue",
+      name: "Helvetica Neue",
+      family: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+      categories: ["en"],
+      badge: "Modern",
+      sample: "The legendary Swiss minimalist icon 123",
+      type: "system"
+    },
+    {
+      id: "baskerville",
+      name: "Baskerville",
+      family: '"Baskerville", Georgia, "Times New Roman", serif',
+      categories: ["en"],
+      badge: "Serif",
+      sample: "Timeless British literary classic 123",
+      type: "system"
+    },
+    {
+      id: "georgia",
+      name: "Georgia",
+      family: '"Georgia", "Palatino", serif',
+      categories: ["en"],
+      badge: "Editorial",
+      sample: "Designed for comfortable screen reading 123",
+      type: "system"
+    },
+    {
+      id: "palatino",
+      name: "Palatino",
+      family: '"Palatino", "Palatino Linotype", "Book Antiqua", serif',
+      categories: ["en"],
+      badge: "Classic",
+      sample: "Italian Renaissance calligraphy grace 123",
+      type: "system"
+    },
+    {
+      id: "futura",
+      name: "Futura",
+      family: '"Futura", "Trebuchet MS", Arial, sans-serif',
+      categories: ["en"],
+      badge: "Avant-Garde",
+      sample: "Bauhaus futuristic typography vision 123",
+      type: "system"
+    },
+    {
+      id: "menlo",
+      name: "Menlo / Consolas",
+      family: '"Menlo", "Consolas", "Monaco", monospace',
+      categories: ["en"],
+      badge: "Code",
+      sample: "const genius = new Developer(123);",
+      type: "system"
+    },
+    {
+      id: "noteworthy",
+      name: "Noteworthy",
+      family: '"Noteworthy", "Comic Sans MS", cursive',
+      categories: ["en"],
+      badge: "Hand",
+      sample: "Casual everyday notes and bullet journaling 123",
+      type: "system"
+    },
+    {
+      id: "optima",
+      name: "Optima",
+      family: '"Optima", "Segoe UI", sans-serif',
+      categories: ["en"],
+      badge: "Humanist",
+      sample: "Elegance of serif with purity of sans 123",
+      type: "system"
+    },
+    {
+      id: "gill_sans",
+      name: "Gill Sans",
+      family: '"Gill Sans", "Gill Sans MT", Calibri, sans-serif',
+      categories: ["en"],
+      badge: "British",
+      sample: "Understated British mid-century clarity 123",
+      type: "system"
+    },
+
+    // 日本語 (ja) - 100% 極速原生大字庫
+    {
+      id: "hiragino_kaku",
+      name: "ヒラギノ角ゴ (Hiragino Sans)",
+      family: '"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif',
+      categories: ["ja"],
+      badge: "角ゴ",
+      sample: "洗練された日本語の美しい可読性 123",
+      type: "system"
+    },
+    {
+      id: "hiragino_mincho",
+      name: "ヒラギノ明朝 (Hiragino Mincho)",
+      family: '"Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif',
+      categories: ["ja"],
+      badge: "明朝",
+      sample: "静寂と気品あふれる書籍明朝体 123",
+      type: "system"
+    },
+    {
+      id: "klee_system",
+      name: "クレー (Klee)",
+      family: '"Klee", "Klee-Medium", "Klee One", "Hiragino Maru Gothic ProN", cursive, sans-serif',
+      categories: ["ja"],
+      badge: "教科書",
+      sample: "Mac純正自带！鉛筆の筆圧を感じる端正な文字 123",
+      type: "system"
+    },
+    {
+      id: "yu_gothic",
+      name: "游ゴシック (Yu Gothic)",
+      family: '"Yu Gothic", "YuGothic", "Hiragino Sans", "Meiryo", sans-serif',
+      categories: ["ja"],
+      badge: "游ゴ",
+      sample: "現代的で端正なスクリーン表示用ゴシック 123",
+      type: "system"
+    },
+    {
+      id: "yu_mincho",
+      name: "游明朝 (Yu Mincho)",
+      family: '"Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "MS Mincho", serif',
+      categories: ["ja"],
+      badge: "游明朝",
+      sample: "時代を越えて愛される小説・随筆のための明朝 123",
+      type: "system"
+    },
+    {
+      id: "tsukushi_maru",
+      name: "筑紫丸ゴシック (Tsukushi)",
+      family: '"Tsukushi A Round Gothic", "Tsukushi B Round Gothic", "Hiragino Maru Gothic ProN", sans-serif',
+      categories: ["ja"],
+      badge: "丸ゴ",
+      sample: "温かみのあるモダンで贅沢な丸文字 123",
+      type: "system"
+    },
+    {
+      id: "toppan_bunkyu",
+      name: "凸版文久明朝 (Toppan)",
+      family: '"Toppan Bunkyu Mincho", "Hiragino Mincho ProN", serif',
+      categories: ["ja"],
+      badge: "活字",
+      sample: "江戸・明治の活字の歴史を継ぐ本格明朝 123",
+      type: "system"
+    },
+    {
+      id: "osaka",
+      name: "Osaka (レトロ文字)",
+      family: '"Osaka", "Osaka-Mono", monospace, sans-serif',
+      categories: ["ja"],
+      badge: "レトロ",
+      sample: "Macの原点、懐かしの大阪スクリーン文字 123",
+      type: "system"
+    },
+    {
+      id: "ja_mono",
+      name: "日文等宽 (Japanese Mono)",
+      family: '"Osaka-Mono", "Hiragino Sans", Menlo, Monaco, monospace',
+      categories: ["ja"],
+      badge: "等幅",
+      sample: "const 日誌 = new ノート(123);",
+      type: "system"
+    },
+    {
+      id: "dotgothic_local",
+      name: "DotGothic (8-bit ドット)",
+      family: 'local("DotGothic16"), "Fusion Pixel NPT", monospace',
+      categories: ["ja"],
+      badge: "ドット",
+      sample: "懐かしの16ドットレトロ文字 123",
+      type: "system"
+    },
+
+    // 한국어 (ko) - 100% 极速原生大字库
+    {
+      id: "apple_gothic",
+      name: "산돌고딕 (Apple SD Gothic)",
+      family: '"Apple SD Gothic Neo", "AppleGothic", "Malgun Gothic", "NanumGothic", sans-serif',
+      categories: ["ko"],
+      badge: "산돌",
+      sample: "맑고 세련된 현대적인 한글 고딕 123",
+      type: "system"
+    },
+    {
+      id: "nanum_gothic",
+      name: "나눔고딕 (Nanum Gothic)",
+      family: '"NanumGothic", "Nanum Gothic", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif',
+      categories: ["ko"],
+      badge: "나눔",
+      sample: "부드럽고 친근한 화면용 한글 고딕 123",
+      type: "system"
+    },
+    {
+      id: "malgun_gothic",
+      name: "맑은 고딕 (Malgun Gothic)",
+      family: '"Malgun Gothic", "Apple SD Gothic Neo", "NanumGothic", sans-serif',
+      categories: ["ko"],
+      badge: "맑은",
+      sample: "정갈하고 가독성 높은 윈도우 표준 고딕 123",
+      type: "system"
+    },
+    {
+      id: "nanum_myeongjo",
+      name: "나눔명조 (Nanum Myeongjo)",
+      family: '"NanumMyeongjo", "Nanum Myeongjo", "Apple Myungjo", "Batang", serif',
+      categories: ["ko"],
+      badge: "명조",
+      sample: "단아하고 우아한 종이책 인쇄 명조체 123",
+      type: "system"
+    },
+    {
+      id: "batang",
+      name: "바탕명조 (Batang / Myungjo)",
+      family: '"Apple Myungjo", "Batang", "BatangChe", "NanumMyeongjo", serif',
+      categories: ["ko"],
+      badge: "바탕",
+      sample: "고전적인 정서와 깊이를 담은 정통 바탕체 123",
+      type: "system"
+    },
+    {
+      id: "gungsuh",
+      name: "궁서체 (Gungsuh Calligraphy)",
+      family: '"Gungsuh", "GungsuhChe", "Apple SD Gothic Neo", cursive, serif',
+      categories: ["ko"],
+      badge: "궁서",
+      sample: "붓의 기품과 전통이 살아있는 궁서체 123",
+      type: "system"
+    },
+    {
+      id: "pretendard",
+      name: "프리텐다드 (Pretendard)",
+      family: 'local("Pretendard"), local("Pretendard-Regular"), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif',
+      categories: ["ko"],
+      badge: "테크",
+      sample: "트렌디한 인터페이스와 완벽한 조화 123",
+      type: "system"
+    },
+    {
+      id: "rounded_ko",
+      name: "둥근고딕 (Rounded Gothic)",
+      family: '"Sandoll Neo1", "NanumGothic", "Apple SD Gothic Neo", sans-serif',
+      categories: ["ko"],
+      badge: "둥근",
+      sample: "따뜻하고 다정한 일상 기록 둥근글씨 123",
+      type: "system"
+    },
+    {
+      id: "korean_hand",
+      name: "손글씨 / 필기체 (Korean Hand)",
+      family: '"Nanum Pen Script", "Nanum Brush Script", "Apple SD Gothic Neo", cursive',
+      categories: ["ko"],
+      badge: "손글씨",
+      sample: "자연스러운 다이어리와 손메모 필기체 123",
+      type: "system"
+    },
+    {
+      id: "mono_ko",
+      name: "한국어 고정폭 (Korean Mono)",
+      family: 'ui-monospace, "SF Mono", Menlo, "Apple SD Gothic Neo", "Malgun Gothic", monospace',
+      categories: ["ko"],
+      badge: "고정폭",
+      sample: "const 노션 = new 워크스페이스(123);",
+      type: "system"
+    }
+  ]);
+
+  const controls = {
+    mainView: document.querySelector("#mainView"),
+    editorView: document.querySelector("#editorView"),
+    enabled: document.querySelector("#enabled"),
+    backgroundColor: document.querySelector("#backgroundColor"),
+    textColor: document.querySelector("#textColor"),
+    sidebarColor: document.querySelector("#sidebarColor"),
+    sidebarTextColor: document.querySelector("#sidebarTextColor"),
+    sidebarActiveColor: document.querySelector("#sidebarActiveColor"),
+    sidebarAccentEnabled: document.querySelector("#sidebarAccentEnabled"),
+    linkSidebarColors: document.querySelector("#linkSidebarColors"),
+    backgroundValue: document.querySelector("#backgroundValue"),
+    textValue: document.querySelector("#textValue"),
+    sidebarValue: document.querySelector("#sidebarValue"),
+    sidebarTextValue: document.querySelector("#sidebarTextValue"),
+    sidebarActiveValue: document.querySelector("#sidebarActiveValue"),
+    selectedPagePreview: document.querySelector("#selectedPagePreview"),
+    sidebarColorPair: document.querySelector(".sidebar-color-pair"),
+    swapColors: document.querySelector("#swapColors"),
+    swapSidebarColors: document.querySelector("#swapSidebarColors"),
+    appearance: [...document.querySelectorAll('input[name="appearance"]')],
+    fontFamily: document.querySelector("#fontFamily"),
+    fontCurrentLabel: document.querySelector("#fontCurrentLabel"),
+    fontResetDefault: document.querySelector("#fontResetDefault"),
+    fontResetText: document.querySelector("#fontResetText"),
+    fontTabs: document.querySelector("#fontTabs"),
+    fontList: document.querySelector("#fontList"),
+    hideComments: document.querySelector("#hideComments"),
+    hideDatabaseProperties: document.querySelector("#hideDatabaseProperties"),
+    moreSettings: document.querySelector("#moreSettings"),
+    fontSection: document.querySelector("#fontSection"),
+    hideSection: document.querySelector("#hideSection"),
+    favoritesEmpty: document.querySelector("#favoritesEmpty"),
+    favoritesList: document.querySelector("#favoritesList"),
+    customThemeStatus: document.querySelector("#customThemeStatus"),
+    customizeColors: document.querySelector("#customizeColors"),
+    backFromEditor: document.querySelector("#backFromEditor"),
+    editorTitle: document.querySelector("#editorTitle"),
+    presetName: document.querySelector("#presetName"),
+    savePreset: document.querySelector("#savePreset"),
+    openNotion: document.querySelector("#openNotion"),
+    versionLabel: document.querySelector("#versionLabel"),
+    colorTriggers: [...document.querySelectorAll(".color-picker-trigger")],
+    colorPicker: document.querySelector("#colorPicker"),
+    colorPickerField: document.querySelector("#colorPickerField"),
+    colorPickerFieldThumb: document.querySelector("#colorPickerFieldThumb"),
+    colorPickerPreview: document.querySelector("#colorPickerPreview"),
+    colorPickerEyedropper: document.querySelector("#colorPickerEyedropper"),
+    colorPickerHue: document.querySelector("#colorPickerHue"),
+    colorPickerFormat: document.querySelector("#colorPickerFormat"),
+    colorPickerHexFields: document.querySelector("#colorPickerHexFields"),
+    colorPickerHex: document.querySelector("#colorPickerHex"),
+    colorPickerRgbFields: document.querySelector("#colorPickerRgbFields"),
+    colorPickerRed: document.querySelector("#colorPickerRed"),
+    colorPickerGreen: document.querySelector("#colorPickerGreen"),
+    colorPickerBlue: document.querySelector("#colorPickerBlue"),
+    status: document.querySelector("#status")
+  };
+
+  const isOnboarding = new URLSearchParams(location.search).get("onboarding") === "1";
+  document.body.classList.toggle("is-onboarding", isOnboarding);
+
+  let currentSettings = { ...DEFAULTS };
+  let presets = [];
+  let fontFavorites = ["pixel"];
+  let fontCategory = "favorite";
+  let editorState = { mode: "new", presetId: undefined };
+  let statusTimer;
+  let saveTimer;
+  let saveChain = Promise.resolve();
+  let pendingStorage = {};
+  let previewFrame;
+  let previewChain = Promise.resolve();
+  let settingsRevision = Date.now();
+  const colorPickerState = { target: undefined, hue: 0, saturation: 0, value: 0 };
+
+  function clamp(value, minimum, maximum) {
+    return Math.min(maximum, Math.max(minimum, value));
+  }
+
+  function isHexColor(value) {
+    return /^#[0-9A-F]{6}$/i.test(value || "");
+  }
+
+  function hexToRgb(hex) {
+    const value = Number.parseInt(hex.slice(1), 16);
+    return { red: (value >> 16) & 255, green: (value >> 8) & 255, blue: value & 255 };
+  }
+
+  function rgbToHex({ red, green, blue }) {
+    return `#${[red, green, blue]
+      .map((channel) => clamp(Math.round(channel), 0, 255).toString(16).padStart(2, "0"))
+      .join("")}`.toUpperCase();
+  }
+
+  function mixColors(first, second, amount) {
+    const from = hexToRgb(first);
+    const to = hexToRgb(second);
+    return rgbToHex({
+      red: from.red + (to.red - from.red) * amount,
+      green: from.green + (to.green - from.green) * amount,
+      blue: from.blue + (to.blue - from.blue) * amount
+    });
+  }
+
+  function deriveSidebarColor(color) {
+    const rgb = hexToRgb(color);
+    return rgbToHex({ red: rgb.red * 0.92, green: rgb.green * 0.92, blue: rgb.blue * 0.92 });
+  }
+
+  function deriveSidebarTextColor(color) {
+    const rgb = hexToRgb(color);
+    return rgbToHex({ red: rgb.red * 0.82, green: rgb.green * 0.82, blue: rgb.blue * 0.82 });
+  }
+
+  function deriveSidebarActiveColor(sidebarColor, sidebarTextColor) {
+    return mixColors(sidebarColor, sidebarTextColor, 0.16);
+  }
+
+  function luminance(color) {
+    return Object.values(hexToRgb(color)).map((channel) => {
+      const value = channel / 255;
+      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    }).reduce((total, value, index) => total + value * [0.2126, 0.7152, 0.0722][index], 0);
+  }
+
+  function contrastColor(background, preferred, alternatives = ["#FFFFFF", "#16131C"]) {
+    const ratio = (first, second) => {
+      const a = luminance(first);
+      const b = luminance(second);
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    };
+    return [preferred, ...alternatives].filter(isHexColor).reduce(
+      (best, color) => ratio(background, color) > ratio(background, best) ? color : best,
+      preferred
+    );
+  }
+
+  function normalizeSettings(settings) {
+    const backgroundColor = isHexColor(settings.backgroundColor) ? settings.backgroundColor.toUpperCase() : DEFAULTS.backgroundColor;
+    const textColor = isHexColor(settings.textColor) ? settings.textColor.toUpperCase() : DEFAULTS.textColor;
+    const sidebarColor = isHexColor(settings.sidebarColor) ? settings.sidebarColor.toUpperCase() : deriveSidebarColor(backgroundColor);
+    const sidebarTextColor = isHexColor(settings.sidebarTextColor) ? settings.sidebarTextColor.toUpperCase() : deriveSidebarTextColor(textColor);
+    return {
+      enabled: settings.enabled !== false,
+      backgroundColor,
+      textColor,
+      sidebarColor,
+      sidebarTextColor,
+      sidebarActiveColor: isHexColor(settings.sidebarActiveColor)
+        ? settings.sidebarActiveColor.toUpperCase()
+        : deriveSidebarActiveColor(sidebarColor, sidebarTextColor),
+      sidebarAccentEnabled: settings.sidebarAccentEnabled !== false,
+      linkSidebarColors: settings.linkSidebarColors === true,
+      fontFamily: FONT_CATALOG.some((f) => f.id === settings.fontFamily)
+        ? settings.fontFamily
+        : "default",
+      appearance: settings.appearance === "dark" ? "dark" : "light",
+      hideComments: settings.hideComments === true,
+      hideDatabaseProperties: settings.hideDatabaseProperties === true
+    };
+  }
+
+  function themeFrom(source) {
+    return Object.fromEntries(THEME_KEYS.map((key) => [key, source[key]]));
+  }
+
+  function sameTheme(first, second) {
+    return THEME_KEYS.every((key) => first?.[key] === second?.[key]);
+  }
+
+  function createId() {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  function normalizePreset(preset, index) {
+    if (!preset || !isHexColor(preset.backgroundColor) || !isHexColor(preset.textColor)) return undefined;
+    const theme = normalizeSettings({ ...DEFAULTS, ...preset });
+    return {
+      id: typeof preset.id === "string" && preset.id ? preset.id : `legacy-${index}`,
+      name: typeof preset.name === "string" && preset.name.trim() ? preset.name.trim() : `Saved theme ${index + 1}`,
+      createdAt: Number(preset.createdAt) || 0,
+      ...themeFrom(theme)
+    };
+  }
+
+  function showStatus(message) {
+    window.clearTimeout(statusTimer);
+    controls.status.textContent = message;
+    controls.status.classList.add("is-visible");
+    statusTimer = window.setTimeout(() => controls.status.classList.remove("is-visible"), 1800);
+  }
+
+  function queueStorage(values, immediate = false) {
+    Object.assign(pendingStorage, values);
+    window.clearTimeout(saveTimer);
+    if (immediate) return flushStorage();
+    saveTimer = window.setTimeout(flushStorage, 110);
+    return undefined;
+  }
+
+  function flushStorage() {
+    window.clearTimeout(saveTimer);
+    saveTimer = undefined;
+    const values = pendingStorage;
+    pendingStorage = {};
+    if (!Object.keys(values).length) return saveChain;
+    settingsRevision += 1;
+    values[SETTINGS_REVISION_KEY] = settingsRevision;
+    saveChain = saveChain.then(() => chrome.storage.local.set(values));
+    return saveChain;
+  }
+
+  async function sendPreviewToTab(tabId, settings, revision) {
+    const message = { type: "NPT_PREVIEW_SETTINGS", settings, revision };
+    try {
+      return await chrome.tabs.sendMessage(tabId, message);
+    } catch (error) {
+      if (!chrome.scripting?.executeScript) throw error;
+      try {
+        await chrome.scripting.insertCSS?.({
+          target: { tabId },
+          files: ["content/notion-theme.css"]
+        });
+      } catch (_) {
+        // The stylesheet may already be present after an extension update.
+      }
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        files: ["content/content.js"]
+      });
+      return chrome.tabs.sendMessage(tabId, message);
+    }
+  }
+
+  function schedulePreview() {
+    if (previewFrame) return;
+    previewFrame = requestAnimationFrame(() => {
+      previewFrame = undefined;
+      const settings = { ...currentSettings };
+      const revision = settingsRevision + 1;
+      previewChain = previewChain.then(async () => {
+        try {
+          const tabs = await chrome.tabs.query({
+            url: [
+              "https://www.notion.so/*",
+              "https://notion.so/*",
+              "https://app.notion.com/*",
+              "https://*.notion.site/*"
+            ]
+          });
+          await Promise.allSettled(
+            tabs.filter((tab) => Number.isInteger(tab.id)).map((tab) =>
+              sendPreviewToTab(tab.id, settings, revision)
+            )
+          );
+        } catch (_) {
+          // Notion may not be open yet. Stored settings apply when it opens.
+        }
+      });
+    });
+  }
+
+  function saveSettings(changes, immediate = false) {
+    Object.assign(currentSettings, changes);
+    queueStorage(changes, immediate);
+    schedulePreview();
+    updatePresetState();
+  }
+
+  function syncColorControl(input, output) {
+    const color = input.value.toUpperCase();
+    output.value = color;
+    const trigger = controls.colorTriggers.find((candidate) => candidate.dataset.colorTarget === input.id);
+    if (trigger) {
+      trigger.style.setProperty("--color-picker-value", color);
+      trigger.style.setProperty("--color-value-text", contrastColor(color, "#16131C"));
+    }
+  }
+
+  function updateUi(settings) {
+    currentSettings = normalizeSettings({ ...currentSettings, ...settings });
+    controls.enabled.checked = currentSettings.enabled;
+    for (const key of ["backgroundColor", "textColor", "sidebarColor", "sidebarTextColor", "sidebarActiveColor"]) {
+      controls[key].value = currentSettings[key];
+    }
+    controls.sidebarAccentEnabled.checked = currentSettings.sidebarAccentEnabled;
+    controls.linkSidebarColors.checked = currentSettings.linkSidebarColors;
+    controls.fontFamily.value = currentSettings.fontFamily;
+    controls.hideComments.checked = currentSettings.hideComments;
+    controls.hideDatabaseProperties.checked = currentSettings.hideDatabaseProperties;
+    for (const radio of controls.appearance) radio.checked = radio.value === currentSettings.appearance;
+    syncColorControl(controls.backgroundColor, controls.backgroundValue);
+    syncColorControl(controls.textColor, controls.textValue);
+    syncColorControl(controls.sidebarColor, controls.sidebarValue);
+    syncColorControl(controls.sidebarTextColor, controls.sidebarTextValue);
+    syncColorControl(controls.sidebarActiveColor, controls.sidebarActiveValue);
+    controls.selectedPagePreview.dataset.accentEnabled = String(currentSettings.sidebarAccentEnabled);
+    controls.sidebarColorPair.dataset.linked = String(currentSettings.linkSidebarColors);
+    renderFonts();
+    updatePresetState();
+  }
+
+  function applyTheme(theme) {
+    const normalized = normalizeSettings({ ...currentSettings, ...theme });
+    updateUi(normalized);
+    saveSettings(themeFrom(normalized), true);
+  }
+
+  function updatePresetState() {
+    const active = presets.find((preset) => sameTheme(preset, currentSettings));
+    controls.customThemeStatus.hidden = Boolean(active) || presets.length === 0;
+    for (const card of controls.favoritesList.querySelectorAll(".preset-card")) {
+      const isActive = card.dataset.presetId === active?.id;
+      card.classList.toggle("is-active", isActive);
+      card.querySelector(".preset-apply")?.setAttribute("aria-pressed", String(isActive));
+    }
+  }
+
+  function closePresetPanels(exceptCard) {
+    for (const card of controls.favoritesList.querySelectorAll(".preset-card")) {
+      if (card === exceptCard) continue;
+      for (const panel of card.querySelectorAll(".preset-menu, .preset-delete-confirm, .preset-rename")) panel.hidden = true;
+      card.querySelector(".preset-more")?.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  function makePreview(background, text, label) {
+    const preview = document.createElement("span");
+    preview.className = "preset-preview";
+    preview.textContent = "Aa";
+    preview.style.backgroundColor = background;
+    preview.style.color = contrastColor(background, text, ["#FFFFFF", "#16131C"]);
+    preview.title = `${label}: ${background} / ${text}`;
+    return preview;
+  }
+
+  function renderPresets() {
+    controls.favoritesList.replaceChildren();
+    controls.favoritesEmpty.hidden = presets.length > 0;
+    presets.forEach((preset) => {
+      const card = document.createElement("article");
+      card.className = "preset-card";
+      card.dataset.presetId = preset.id;
+
+      const summary = document.createElement("div");
+      summary.className = "preset-summary";
+      const apply = document.createElement("button");
+      apply.type = "button";
+      apply.className = "preset-apply";
+      apply.dataset.presetAction = "apply";
+      apply.dataset.presetId = preset.id;
+      apply.setAttribute("aria-pressed", "false");
+      apply.setAttribute("aria-label", `Apply ${preset.name}`);
+      apply.append(
+        makePreview(preset.sidebarColor, preset.sidebarTextColor, "Sidebar"),
+        makePreview(preset.backgroundColor, preset.textColor, "Page")
+      );
+      const name = document.createElement("span");
+      name.className = "preset-name";
+      name.textContent = preset.name;
+      name.title = preset.name;
+      const accent = document.createElement("span");
+      accent.className = "preset-accent";
+      accent.style.setProperty("--preset-accent-color", preset.sidebarActiveColor);
+      accent.setAttribute("aria-label", `Accent color ${preset.sidebarActiveColor}`);
+      accent.title = `Accent: ${preset.sidebarActiveColor}`;
+      const mode = document.createElement("span");
+      mode.className = "preset-mode";
+      mode.dataset.appearance = preset.appearance;
+      mode.textContent = preset.appearance === "dark" ? "🌙 Dark" : "☀️ Light";
+      mode.title = `Database tags: ${preset.appearance === "dark" ? "Dark" : "Light"}`;
+      apply.append(accent, mode, name);
+
+      const more = document.createElement("button");
+      more.type = "button";
+      more.className = "preset-more";
+      more.dataset.presetAction = "more";
+      more.dataset.presetId = preset.id;
+      more.setAttribute("aria-label", `${preset.name} options`);
+      more.setAttribute("aria-expanded", "false");
+      more.textContent = "⋯";
+      summary.append(apply, more);
+
+      const menu = document.createElement("div");
+      menu.className = "preset-menu";
+      menu.hidden = true;
+      for (const [action, label] of [["rename", "Rename"], ["edit", "Edit"], ["duplicate", "Duplicate"], ["delete", "Delete"]]) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.presetAction = action;
+        button.dataset.presetId = preset.id;
+        button.textContent = label;
+        if (action === "delete") button.className = "delete-action";
+        menu.append(button);
+      }
+
+      const rename = document.createElement("div");
+      rename.className = "preset-rename";
+      rename.hidden = true;
+      const renameInput = document.createElement("input");
+      renameInput.value = preset.name;
+      renameInput.maxLength = 80;
+      renameInput.setAttribute("aria-label", "Preset name");
+      const renameCancel = document.createElement("button");
+      renameCancel.type = "button";
+      renameCancel.dataset.presetAction = "cancel-rename";
+      renameCancel.dataset.presetId = preset.id;
+      renameCancel.textContent = "Cancel";
+      const renameSave = document.createElement("button");
+      renameSave.type = "button";
+      renameSave.dataset.presetAction = "save-rename";
+      renameSave.dataset.presetId = preset.id;
+      renameSave.textContent = "Save";
+      rename.append(renameInput, renameCancel, renameSave);
+
+      const confirmation = document.createElement("div");
+      confirmation.className = "preset-delete-confirm";
+      confirmation.hidden = true;
+      const confirmationText = document.createElement("span");
+      confirmationText.textContent = `Delete ${preset.name}?`;
+      const deleteCancel = document.createElement("button");
+      deleteCancel.type = "button";
+      deleteCancel.dataset.presetAction = "cancel-delete";
+      deleteCancel.dataset.presetId = preset.id;
+      deleteCancel.textContent = "Cancel";
+      const deleteConfirm = document.createElement("button");
+      deleteConfirm.type = "button";
+      deleteConfirm.className = "confirm-delete";
+      deleteConfirm.dataset.presetAction = "confirm-delete";
+      deleteConfirm.dataset.presetId = preset.id;
+      deleteConfirm.textContent = "Delete";
+      confirmation.append(confirmationText, deleteCancel, deleteConfirm);
+
+      card.append(summary, menu, rename, confirmation);
+      controls.favoritesList.append(card);
+    });
+    updatePresetState();
+  }
+
+  function persistPresets() {
+    return queueStorage({ [PRESETS_KEY]: presets.map((preset) => ({ ...preset })) }, true);
+  }
+
+  function openEditor(mode = "new", preset) {
+    editorState = { mode, presetId: mode === "edit" ? preset?.id : undefined };
+    if (preset) applyTheme(themeFrom(preset));
+    controls.presetName.value = mode === "duplicate" && preset ? `${preset.name} Copy` : mode === "edit" && preset ? preset.name : "";
+    controls.editorTitle.textContent = mode === "edit" ? "Edit Preset" : mode === "duplicate" ? "Duplicate Preset" : "Customize Colors";
+    controls.savePreset.textContent = mode === "edit" ? "Save Changes" : "Save as Preset";
+    controls.editorView.hidden = false;
+    if (isOnboarding) {
+      document.body.classList.add("has-editor");
+      controls.editorView.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      controls.mainView.hidden = true;
+    }
+  }
+
+  function closeEditor() {
+    closeColorPicker();
+    controls.editorView.hidden = true;
+    document.body.classList.remove("has-editor");
+    controls.mainView.hidden = false;
+    renderPresets();
+  }
+
+  function nextCustomName() {
+    let index = 1;
+    const names = new Set(presets.map((preset) => preset.name));
+    while (names.has(`Custom ${index}`)) index += 1;
+    return `Custom ${index}`;
+  }
+
+  function updateFontToolbar() {
+    const isDefault = !currentSettings.fontFamily || currentSettings.fontFamily === "default";
+    const activeFont = FONT_CATALOG.find((f) => f.id === currentSettings.fontFamily);
+    if (controls.fontCurrentLabel) {
+      controls.fontCurrentLabel.textContent = isDefault ? "Notion Default" : activeFont?.name || "Custom Font";
+    }
+    if (controls.fontResetDefault) {
+      controls.fontResetDefault.classList.toggle("is-default", isDefault);
+      controls.fontResetDefault.setAttribute("aria-pressed", String(isDefault));
+      controls.fontResetDefault.title = isDefault ? "Currently using Notion default font" : "Reset font to Notion default";
+    }
+    if (controls.fontResetText) {
+      controls.fontResetText.textContent = isDefault ? "Default" : "Reset";
+    }
+  }
+
+  function renderFonts() {
+    updateFontToolbar();
+    if (!controls.fontList) return;
+    controls.fontList.replaceChildren();
+    for (const tab of controls.fontTabs.querySelectorAll("[data-font-category]")) {
+      tab.setAttribute("aria-selected", String(tab.dataset.fontCategory === fontCategory));
+    }
+    const visible = FONT_CATALOG.filter((font) =>
+      fontCategory === "favorite"
+        ? fontFavorites.includes(font.id)
+        : font.categories.includes(fontCategory)
+    );
+    if (!visible.length) {
+      const empty = document.createElement("p");
+      empty.className = "font-empty";
+      empty.textContent = "No favorite fonts yet.";
+      controls.fontList.append(empty);
+      return;
+    }
+
+    for (const font of visible) {
+      const row = document.createElement("div");
+      row.className = "font-row";
+      row.classList.toggle("is-active", font.id === currentSettings.fontFamily);
+
+      const favorite = document.createElement("button");
+      favorite.type = "button";
+      favorite.className = "font-favorite";
+      favorite.classList.toggle("is-favorite", fontFavorites.includes(font.id));
+      favorite.dataset.fontFavorite = font.id;
+      favorite.textContent = "★";
+      favorite.setAttribute(
+        "aria-label",
+        `${fontFavorites.includes(font.id) ? "Remove" : "Add"} ${font.name} ${fontFavorites.includes(font.id) ? "from" : "to"} favorites`
+      );
+
+      const apply = document.createElement("button");
+      apply.type = "button";
+      apply.className = "font-apply";
+      apply.dataset.fontApply = font.id;
+
+      const meta = document.createElement("div");
+      meta.className = "font-meta";
+
+      const name = document.createElement("span");
+      name.className = "font-name";
+      name.textContent = font.name;
+
+      const badge = document.createElement("span");
+      badge.className = "font-badge";
+      badge.textContent = font.badge;
+
+      meta.append(name, badge);
+
+      const sample = document.createElement("div");
+      sample.className = "font-sample";
+      sample.textContent = font.sample;
+      sample.style.fontFamily = font.family;
+
+      apply.append(meta, sample);
+
+      const mark = document.createElement("span");
+      mark.className = "font-active-mark";
+      mark.textContent = font.id === currentSettings.fontFamily ? "✓" : "";
+
+      row.append(favorite, apply, mark);
+      controls.fontList.append(row);
+    }
+  }
+
+  function rgbToHsv({ red, green, blue }) {
+    const channels = [red, green, blue].map((channel) => channel / 255);
+    const maximum = Math.max(...channels);
+    const minimum = Math.min(...channels);
+    const delta = maximum - minimum;
+    let hue = 0;
+    if (delta > 0) {
+      if (maximum === channels[0]) hue = 60 * (((channels[1] - channels[2]) / delta) % 6);
+      else if (maximum === channels[1]) hue = 60 * ((channels[2] - channels[0]) / delta + 2);
+      else hue = 60 * ((channels[0] - channels[1]) / delta + 4);
+    }
+    return { hue: hue < 0 ? hue + 360 : hue, saturation: maximum === 0 ? 0 : delta / maximum, value: maximum };
+  }
+
+  function hsvToRgb({ hue, saturation, value }) {
+    const chroma = value * saturation;
+    const segment = hue / 60;
+    const secondary = chroma * (1 - Math.abs((segment % 2) - 1));
+    const candidates = segment < 1 ? [chroma, secondary, 0] : segment < 2 ? [secondary, chroma, 0] : segment < 3 ? [0, chroma, secondary] : segment < 4 ? [0, secondary, chroma] : segment < 5 ? [secondary, 0, chroma] : [chroma, 0, secondary];
+    const match = value - chroma;
+    return { red: (candidates[0] + match) * 255, green: (candidates[1] + match) * 255, blue: (candidates[2] + match) * 255 };
+  }
+
+  function currentPickerHex() {
+    return rgbToHex(hsvToRgb(colorPickerState));
+  }
+
+  function renderColorPicker() {
+    const hex = currentPickerHex();
+    const rgb = hexToRgb(hex);
+    controls.colorPicker.style.setProperty("--picker-hue", colorPickerState.hue);
+    controls.colorPicker.style.setProperty("--picker-color", hex);
+    controls.colorPickerFieldThumb.style.left = `${colorPickerState.saturation * 100}%`;
+    controls.colorPickerFieldThumb.style.top = `${(1 - colorPickerState.value) * 100}%`;
+    controls.colorPickerHue.value = String(Math.round(colorPickerState.hue));
+    if (document.activeElement !== controls.colorPickerHex) controls.colorPickerHex.value = hex;
+    for (const [input, value] of [[controls.colorPickerRed, rgb.red], [controls.colorPickerGreen, rgb.green], [controls.colorPickerBlue, rgb.blue]]) {
+      if (document.activeElement !== input) input.value = String(value);
+    }
+  }
+
+  function applyPickerColor(immediate = false) {
+    if (!colorPickerState.target) return;
+    colorPickerState.target.value = currentPickerHex();
+    colorPickerState.target.dispatchEvent(new Event("input", { bubbles: true }));
+    if (immediate) colorPickerState.target.dispatchEvent(new Event("change", { bubbles: true }));
+    renderColorPicker();
+  }
+
+  function closeColorPicker() {
+    controls.colorPicker.hidden = true;
+    colorPickerState.target = undefined;
+  }
+
+  function openColorPicker(trigger) {
+    const target = document.getElementById(trigger.dataset.colorTarget);
+    if (!target) return;
+    Object.assign(colorPickerState, rgbToHsv(hexToRgb(target.value.toUpperCase())), { target });
+    controls.colorPicker.hidden = false;
+    controls.colorPickerFormat.value = "hex";
+    controls.colorPickerHexFields.hidden = false;
+    controls.colorPickerRgbFields.hidden = true;
+    renderColorPicker();
+    const triggerRect = trigger.getBoundingClientRect();
+    const pickerRect = controls.colorPicker.getBoundingClientRect();
+    const left = clamp(triggerRect.left + triggerRect.width / 2 - pickerRect.width / 2, 8, window.innerWidth - pickerRect.width - 8);
+    let top = triggerRect.bottom + 8;
+    if (top + pickerRect.height > window.innerHeight - 8) top = Math.max(8, triggerRect.top - pickerRect.height - 8);
+    controls.colorPicker.style.left = `${left}px`;
+    controls.colorPicker.style.top = `${top}px`;
+    requestAnimationFrame(() => { controls.colorPickerHex.focus(); controls.colorPickerHex.select(); });
+  }
+
+  function bindColorInput(key, output, linkedKey) {
+    const input = controls[key];
+    const handle = (immediate) => {
+      const value = input.value.toUpperCase();
+      if (!isHexColor(value)) return;
+      syncColorControl(input, output);
+      const changes = { [key]: value };
+      if ((key === "sidebarColor" || key === "sidebarTextColor") && controls.linkSidebarColors.checked) {
+        controls.linkSidebarColors.checked = false;
+        changes.linkSidebarColors = false;
+        controls.sidebarColorPair.dataset.linked = "false";
+      }
+      if (controls.linkSidebarColors.checked && linkedKey === "background") {
+        changes.sidebarColor = deriveSidebarColor(value);
+        changes.sidebarActiveColor = deriveSidebarActiveColor(changes.sidebarColor, currentSettings.sidebarTextColor);
+        controls.sidebarColor.value = changes.sidebarColor;
+        controls.sidebarActiveColor.value = changes.sidebarActiveColor;
+        syncColorControl(controls.sidebarColor, controls.sidebarValue);
+        syncColorControl(controls.sidebarActiveColor, controls.sidebarActiveValue);
+      }
+      if (controls.linkSidebarColors.checked && linkedKey === "text") {
+        changes.sidebarTextColor = deriveSidebarTextColor(value);
+        changes.sidebarActiveColor = deriveSidebarActiveColor(currentSettings.sidebarColor, changes.sidebarTextColor);
+        controls.sidebarTextColor.value = changes.sidebarTextColor;
+        controls.sidebarActiveColor.value = changes.sidebarActiveColor;
+        syncColorControl(controls.sidebarTextColor, controls.sidebarTextValue);
+        syncColorControl(controls.sidebarActiveColor, controls.sidebarActiveValue);
+      }
+      saveSettings(changes, immediate);
+    };
+    input.addEventListener("input", () => handle(false));
+    input.addEventListener("change", () => handle(true));
+  }
+
+  controls.enabled.addEventListener("change", () => saveSettings({ enabled: controls.enabled.checked }, true));
+  bindColorInput("backgroundColor", controls.backgroundValue, "background");
+  bindColorInput("textColor", controls.textValue, "text");
+  bindColorInput("sidebarColor", controls.sidebarValue);
+  bindColorInput("sidebarTextColor", controls.sidebarTextValue);
+  bindColorInput("sidebarActiveColor", controls.sidebarActiveValue);
+
+  controls.sidebarAccentEnabled.addEventListener("change", () => {
+    controls.selectedPagePreview.dataset.accentEnabled = String(controls.sidebarAccentEnabled.checked);
+    saveSettings({ sidebarAccentEnabled: controls.sidebarAccentEnabled.checked }, true);
+  });
+
+  controls.linkSidebarColors.addEventListener("change", () => {
+    const linked = controls.linkSidebarColors.checked;
+    const changes = { linkSidebarColors: linked };
+    if (linked) {
+      changes.sidebarColor = deriveSidebarColor(currentSettings.backgroundColor);
+      changes.sidebarTextColor = deriveSidebarTextColor(currentSettings.textColor);
+      changes.sidebarActiveColor = deriveSidebarActiveColor(changes.sidebarColor, changes.sidebarTextColor);
+      updateUi({ ...currentSettings, ...changes });
+    }
+    controls.sidebarColorPair.dataset.linked = String(linked);
+    saveSettings(changes, true);
+  });
+
+  controls.swapColors.addEventListener("click", () => {
+    const backgroundColor = currentSettings.textColor;
+    const textColor = currentSettings.backgroundColor;
+    const changes = { backgroundColor, textColor };
+    if (currentSettings.linkSidebarColors) {
+      changes.sidebarColor = deriveSidebarColor(backgroundColor);
+      changes.sidebarTextColor = deriveSidebarTextColor(textColor);
+      changes.sidebarActiveColor = deriveSidebarActiveColor(changes.sidebarColor, changes.sidebarTextColor);
+    }
+    updateUi({ ...currentSettings, ...changes });
+    saveSettings(changes, true);
+  });
+
+  controls.swapSidebarColors.addEventListener("click", () => {
+    const changes = {
+      sidebarColor: currentSettings.sidebarTextColor,
+      sidebarTextColor: currentSettings.sidebarColor
+    };
+    if (controls.linkSidebarColors.checked) {
+      controls.linkSidebarColors.checked = false;
+      changes.linkSidebarColors = false;
+      controls.sidebarColorPair.dataset.linked = "false";
+    }
+    changes.sidebarActiveColor = deriveSidebarActiveColor(changes.sidebarColor, changes.sidebarTextColor);
+    updateUi({ ...currentSettings, ...changes });
+    saveSettings(changes, true);
+  });
+
+  for (const radio of controls.appearance) {
+    radio.addEventListener("change", () => {
+      if (radio.checked) saveSettings({ appearance: radio.value }, true);
+    });
+  }
+
+  controls.hideComments.addEventListener("change", () => saveSettings({ hideComments: controls.hideComments.checked }, true));
+  controls.hideDatabaseProperties.addEventListener("change", () => saveSettings({ hideDatabaseProperties: controls.hideDatabaseProperties.checked }, true));
+
+  controls.moreSettings.addEventListener("toggle", () => {
+    if (controls.moreSettings.open && !controls.fontSection.open && !controls.hideSection.open) {
+      controls.fontSection.open = true;
+      controls.hideSection.open = true;
+    }
+  });
+
+  function syncMoreSettingsVisibility() {
+    const anySectionOpen = controls.fontSection.open || controls.hideSection.open;
+    if (!anySectionOpen) controls.moreSettings.open = false;
+    if (!isOnboarding) {
+      queueStorage({
+        [FONT_SECTION_OPEN_KEY]: controls.fontSection.open,
+        [HIDE_SECTION_OPEN_KEY]: controls.hideSection.open,
+        [MORE_SETTINGS_KEY]: anySectionOpen
+      }, true);
+    }
+  }
+
+  controls.fontSection.addEventListener("toggle", syncMoreSettingsVisibility);
+  controls.hideSection.addEventListener("toggle", syncMoreSettingsVisibility);
+
+  controls.customizeColors.addEventListener("click", () => openEditor("new"));
+  controls.backFromEditor.addEventListener("click", closeEditor);
+
+  controls.savePreset.addEventListener("click", async () => {
+    const requestedName = controls.presetName.value.trim();
+    if (editorState.mode === "edit") {
+      const index = presets.findIndex((preset) => preset.id === editorState.presetId);
+      if (index >= 0) presets[index] = { ...presets[index], name: requestedName || presets[index].name, ...themeFrom(currentSettings) };
+      await persistPresets();
+      showStatus("Preset updated");
+    } else {
+      presets.unshift({ id: createId(), name: requestedName || nextCustomName(), createdAt: Date.now(), ...themeFrom(currentSettings) });
+      await persistPresets();
+      showStatus("Saved as preset");
+    }
+    closeEditor();
+  });
+
+  controls.favoritesList.addEventListener("click", async (event) => {
+    const target = event.target.closest("[data-preset-action]");
+    if (!target) return;
+    const action = target.dataset.presetAction;
+    const preset = presets.find((item) => item.id === target.dataset.presetId);
+    const card = target.closest(".preset-card");
+    if (!preset || !card) return;
+    const menu = card.querySelector(".preset-menu");
+    const confirmation = card.querySelector(".preset-delete-confirm");
+    const rename = card.querySelector(".preset-rename");
+
+    if (action === "apply") {
+      closePresetPanels();
+      applyTheme(themeFrom(preset));
+      showStatus(`${preset.name} applied`);
+    } else if (action === "more") {
+      const willOpen = menu.hidden;
+      closePresetPanels(willOpen ? card : undefined);
+      menu.hidden = !willOpen;
+      target.setAttribute("aria-expanded", String(willOpen));
+      if (willOpen) {
+        requestAnimationFrame(() => menu.scrollIntoView({ block: "nearest", behavior: "smooth" }));
+      }
+    } else if (action === "rename") {
+      menu.hidden = true;
+      rename.hidden = false;
+      const input = rename.querySelector("input");
+      input.focus();
+      input.select();
+    } else if (action === "cancel-rename") {
+      closePresetPanels();
+    } else if (action === "save-rename") {
+      const value = rename.querySelector("input").value.trim();
+      if (!value) return showStatus("Enter a preset name");
+      preset.name = value;
+      await persistPresets();
+      renderPresets();
+      showStatus("Preset renamed");
+    } else if (action === "edit") {
+      closePresetPanels();
+      openEditor("edit", preset);
+    } else if (action === "duplicate") {
+      closePresetPanels();
+      openEditor("duplicate", preset);
+    } else if (action === "delete") {
+      menu.hidden = true;
+      confirmation.hidden = false;
+    } else if (action === "cancel-delete") {
+      closePresetPanels();
+    } else if (action === "confirm-delete") {
+      presets = presets.filter((item) => item.id !== preset.id);
+      await persistPresets();
+      renderPresets();
+      showStatus("Preset deleted");
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".preset-card")) {
+      closePresetPanels();
+    }
+  });
+
+  controls.fontTabs.addEventListener("click", (event) => {
+    const tab = event.target.closest("[data-font-category]");
+    if (!tab) return;
+    fontCategory = tab.dataset.fontCategory;
+    renderFonts();
+  });
+
+  controls.fontList.addEventListener("click", (event) => {
+    const favorite = event.target.closest("[data-font-favorite]");
+    if (favorite) {
+      const id = favorite.dataset.fontFavorite;
+      fontFavorites = fontFavorites.includes(id) ? fontFavorites.filter((item) => item !== id) : [...fontFavorites, id];
+      queueStorage({ [FONT_FAVORITES_KEY]: fontFavorites }, true);
+      renderFonts();
+      return;
+    }
+    const apply = event.target.closest("[data-font-apply]");
+    if (!apply) return;
+    const targetFont = apply.dataset.fontApply;
+    const newFont = currentSettings.fontFamily === targetFont ? "default" : targetFont;
+    controls.fontFamily.value = newFont;
+    saveSettings({ fontFamily: newFont }, true);
+    renderFonts();
+  });
+
+  controls.fontResetDefault?.addEventListener("click", () => {
+    if (currentSettings.fontFamily === "default") return;
+    controls.fontFamily.value = "default";
+    saveSettings({ fontFamily: "default" }, true);
+    renderFonts();
+  });
+
+  controls.openNotion.addEventListener("click", () => chrome.tabs.create({ url: "https://www.notion.so" }));
+
+  for (const trigger of controls.colorTriggers) trigger.addEventListener("click", () => openColorPicker(trigger));
+
+  function updateFieldFromPointer(event) {
+    const rect = controls.colorPickerField.getBoundingClientRect();
+    colorPickerState.saturation = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+    colorPickerState.value = 1 - clamp((event.clientY - rect.top) / rect.height, 0, 1);
+    applyPickerColor();
+  }
+  controls.colorPickerField.addEventListener("pointerdown", (event) => {
+    controls.colorPickerField.setPointerCapture?.(event.pointerId);
+    updateFieldFromPointer(event);
+  });
+  controls.colorPickerField.addEventListener("pointermove", (event) => {
+    if (event.buttons === 1) updateFieldFromPointer(event);
+  });
+  controls.colorPickerField.addEventListener("pointerup", () => applyPickerColor(true));
+  controls.colorPickerHue.addEventListener("input", () => {
+    colorPickerState.hue = Number(controls.colorPickerHue.value);
+    applyPickerColor();
+  });
+  controls.colorPickerHue.addEventListener("change", () => applyPickerColor(true));
+  controls.colorPickerHex.addEventListener("input", () => {
+    const value = controls.colorPickerHex.value.toUpperCase();
+    if (!isHexColor(value)) return;
+    Object.assign(colorPickerState, rgbToHsv(hexToRgb(value)));
+    applyPickerColor();
+  });
+  controls.colorPickerHex.addEventListener("change", () => applyPickerColor(true));
+  for (const input of [controls.colorPickerRed, controls.colorPickerGreen, controls.colorPickerBlue]) {
+    input.addEventListener("input", () => {
+      const values = [controls.colorPickerRed, controls.colorPickerGreen, controls.colorPickerBlue].map((field) => clamp(Number(field.value) || 0, 0, 255));
+      Object.assign(colorPickerState, rgbToHsv({ red: values[0], green: values[1], blue: values[2] }));
+      applyPickerColor();
+    });
+    input.addEventListener("change", () => applyPickerColor(true));
+  }
+  controls.colorPickerFormat.addEventListener("change", () => {
+    const isRgb = controls.colorPickerFormat.value === "rgb";
+    controls.colorPickerHexFields.hidden = isRgb;
+    controls.colorPickerRgbFields.hidden = !isRgb;
+    renderColorPicker();
+  });
+  controls.colorPickerEyedropper.hidden = typeof window.EyeDropper !== "function";
+  controls.colorPickerEyedropper.addEventListener("click", async () => {
+    try {
+      const result = await new EyeDropper().open();
+      Object.assign(colorPickerState, rgbToHsv(hexToRgb(result.sRGBHex.toUpperCase())));
+      applyPickerColor(true);
+    } catch (_) {
+      // The user cancelled the eyedropper.
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".preset-card")) closePresetPanels();
+    if (!controls.colorPicker.hidden && !event.target.closest("#colorPicker") && !event.target.closest(".color-picker-trigger")) closeColorPicker();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      if (!controls.colorPicker.hidden) closeColorPicker();
+      else closePresetPanels();
+    }
+  });
+
+  const manifestVersion = chrome.runtime?.getManifest?.().version;
+  if (manifestVersion) controls.versionLabel.textContent = `v${manifestVersion}`;
+
+  if (controls.fontFamily) {
+    controls.fontFamily.replaceChildren(
+      ...FONT_CATALOG.map((font) => {
+        const option = document.createElement("option");
+        option.value = font.id;
+        option.textContent = font.name;
+        return option;
+      })
+    );
+  }
+
+  chrome.storage.local.get(STORAGE_DEFAULTS, async (stored) => {
+    settingsRevision = Math.max(settingsRevision, Number(stored[SETTINGS_REVISION_KEY]) || 0);
+    currentSettings = normalizeSettings(stored);
+    fontFavorites = Array.isArray(stored[FONT_FAVORITES_KEY]) ? [...new Set(stored[FONT_FAVORITES_KEY].filter((id) => FONT_CATALOG.some((font) => font.id === id)))] : ["pixel"];
+
+    if (Array.isArray(stored[PRESETS_KEY])) {
+      presets = stored[PRESETS_KEY].map(normalizePreset).filter(Boolean);
+    } else {
+      const legacy = Array.isArray(stored[LEGACY_FAVORITES_KEY]) ? stored[LEGACY_FAVORITES_KEY].map(normalizePreset).filter(Boolean) : [];
+      presets = [...BUILT_IN_PRESETS.map((preset) => ({ ...preset })), ...legacy];
+      await chrome.storage.local.set({ [PRESETS_KEY]: presets });
+    }
+
+    if (isOnboarding) {
+      controls.moreSettings.open = true;
+      controls.fontSection.open = true;
+      controls.hideSection.open = true;
+    } else {
+      const legacyOpenState = stored[MORE_SETTINGS_KEY] === true;
+      const fontOpen = typeof stored[FONT_SECTION_OPEN_KEY] === "boolean" ? stored[FONT_SECTION_OPEN_KEY] : legacyOpenState;
+      const hideOpen = typeof stored[HIDE_SECTION_OPEN_KEY] === "boolean" ? stored[HIDE_SECTION_OPEN_KEY] : legacyOpenState;
+      controls.fontSection.open = fontOpen;
+      controls.hideSection.open = hideOpen;
+      controls.moreSettings.open = fontOpen || hideOpen;
+    }
+    updateUi(currentSettings);
+    renderPresets();
+  });
+
+  const catSvg = document.getElementById("catSvg");
+  const pupilL = document.getElementById("pupilL");
+  const pupilR = document.getElementById("pupilR");
+  if (catSvg && pupilL && pupilR) {
+    document.addEventListener("mousemove", (e) => {
+      if (controls.moreSettings && controls.moreSettings.open) return;
+      const catRect = catSvg.getBoundingClientRect();
+      if (!catRect.width || !catRect.height) return;
+      const eyeScreenX = catRect.left + catRect.width * 0.46;
+      const eyeScreenY = catRect.top + catRect.height * 0.32;
+      const dx = e.clientX - eyeScreenX;
+      const dy = e.clientY - eyeScreenY;
+      const angle = Math.atan2(dy, dx);
+      const dist = Math.min(Math.hypot(dx, dy) / 3.2, 68);
+      const offsetX = Math.cos(angle) * dist;
+      const offsetY = Math.sin(angle) * dist;
+      pupilL.setAttribute("transform", `translate(${offsetX.toFixed(1)}, ${offsetY.toFixed(1)})`);
+      pupilR.setAttribute("transform", `translate(${offsetX.toFixed(1)}, ${offsetY.toFixed(1)})`);
+    });
+  }
+})();
+
+</script>
+  </body>
+</html>
